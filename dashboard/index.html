@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APEX AI Trading Bot — Dashboard</title>
+    <meta name="description" content="AI-powered autonomous day trading dashboard with real-time signals, LLM reasoning, and politician trade intelligence">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0a0b1a;
+            --bg-card: rgba(15, 17, 40, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.06);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --accent-purple: #8b5cf6;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-orange: #f59e0b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --gradient-1: linear-gradient(135deg, #8b5cf6, #3b82f6);
+            --gradient-2: linear-gradient(135deg, #06b6d4, #10b981);
+            --gradient-3: linear-gradient(135deg, #f59e0b, #ef4444);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(ellipse at 20% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+                        radial-gradient(ellipse at 40% 80%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
+            animation: bgFloat 20s ease-in-out infinite;
+            z-index: 0;
+        }
+        @keyframes bgFloat {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-2%, -1%); }
+        }
+
+        /* Header */
+        .header {
+            position: relative; z-index: 10;
+            padding: 20px 32px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            background: rgba(10, 11, 26, 0.8);
+        }
+        .logo {
+            display: flex; align-items: center; gap: 12px;
+        }
+        .logo-icon {
+            width: 42px; height: 42px;
+            background: var(--gradient-1);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+        .logo-text { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+        .logo-text span { color: var(--accent-purple); }
+
+        .header-status {
+            display: flex; align-items: center; gap: 16px;
+        }
+        .status-badge {
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px 14px; border-radius: 20px;
+            font-size: 12px; font-weight: 600;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .mode-badge {
+            padding: 6px 14px; border-radius: 20px;
+            font-size: 12px; font-weight: 600;
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-orange);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        /* Main grid */
+        .dashboard {
+            position: relative; z-index: 10;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: auto auto auto auto;
+            gap: 20px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        /* Glass card */
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        }
+        .card:hover {
+            border-color: rgba(139, 92, 246, 0.2);
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.1);
+            transform: translateY(-1px);
+        }
+        .card-title {
+            font-size: 13px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 1.2px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* Stat cards row */
+        .stat-card {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 28px; font-weight: 800;
+            letter-spacing: -1px;
+            margin: 4px 0;
+        }
+        .stat-label {
+            font-size: 11px; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .stat-change {
+            font-size: 12px; font-weight: 600;
+            margin-top: 4px;
+        }
+        .positive { color: var(--accent-green); }
+        .negative { color: var(--accent-red); }
+        .neutral { color: var(--text-secondary); }
+
+        /* Portfolio chart */
+        .chart-container {
+            grid-column: span 2;
+            min-height: 280px;
+        }
+        .chart-container canvas { max-height: 240px; }
+
+        /* Signal heatmap */
+        .heatmap-container { grid-column: span 2; }
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: 80px repeat(7, 1fr);
+            gap: 3px;
+            font-size: 11px;
+        }
+        .heatmap-header {
+            padding: 6px 4px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 10px;
+        }
+        .heatmap-ticker {
+            padding: 8px 6px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex; align-items: center;
+        }
+        .heatmap-cell {
+            padding: 8px 4px;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 11px;
+            transition: all 0.3s;
+        }
+        .heatmap-cell:hover { transform: scale(1.1); z-index: 2; }
+
+        /* LLM Reasoning */
+        .reasoning-container { grid-column: span 2; max-height: 400px; overflow-y: auto; }
+        .decision-item {
+            padding: 14px;
+            border-radius: 10px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        .decision-item:hover { background: rgba(255,255,255,0.05); }
+        .decision-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 8px;
+        }
+        .decision-ticker {
+            font-weight: 800; font-size: 16px;
+        }
+        .decision-action {
+            padding: 3px 10px; border-radius: 6px;
+            font-size: 11px; font-weight: 700;
+            text-transform: uppercase;
+        }
+        .action-buy { background: rgba(16,185,129,0.2); color: var(--accent-green); }
+        .action-sell { background: rgba(239,68,68,0.2); color: var(--accent-red); }
+        .action-hold { background: rgba(148,163,184,0.2); color: var(--text-secondary); }
+        .decision-reasoning {
+            font-size: 13px; color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .decision-meta {
+            font-size: 11px; color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* Politician feed */
+        .politician-container { grid-column: span 2; max-height: 400px; overflow-y: auto; }
+        .pol-trade {
+            display: flex; gap: 12px; align-items: flex-start;
+            padding: 12px;
+            border-radius: 10px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+        .pol-trade:hover { background: rgba(255,255,255,0.05); }
+        .pol-avatar {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: 700;
+            flex-shrink: 0;
+        }
+        .pol-avatar.democrat { background: rgba(59,130,246,0.2); color: var(--accent-blue); }
+        .pol-avatar.republican { background: rgba(239,68,68,0.2); color: var(--accent-red); }
+        .pol-info { flex: 1; }
+        .pol-name { font-weight: 700; font-size: 14px; }
+        .pol-details { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+        .pol-signal {
+            padding: 3px 8px; border-radius: 4px;
+            font-size: 10px; font-weight: 700;
+            margin-top: 4px; display: inline-block;
+        }
+
+        /* Trade log */
+        .trade-log { grid-column: span 4; }
+        .trade-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .trade-table th {
+            text-align: left; padding: 10px 12px;
+            color: var(--text-muted); font-weight: 600;
+            font-size: 11px; text-transform: uppercase;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .trade-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+        }
+        .trade-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.3); border-radius: 4px; }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .dashboard { grid-template-columns: repeat(2, 1fr); }
+            .trade-log { grid-column: span 2; }
+        }
+        @media (max-width: 768px) {
+            .dashboard { grid-template-columns: 1fr; padding: 12px; }
+            .chart-container, .heatmap-container, .reasoning-container, .politician-container, .trade-log { grid-column: span 1; }
+            .header { padding: 12px 16px; }
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card { animation: fadeInUp 0.5s ease forwards; }
+        .card:nth-child(2) { animation-delay: 0.05s; }
+        .card:nth-child(3) { animation-delay: 0.1s; }
+        .card:nth-child(4) { animation-delay: 0.15s; }
+        .card:nth-child(5) { animation-delay: 0.2s; }
+        .card:nth-child(6) { animation-delay: 0.25s; }
+        .card:nth-child(7) { animation-delay: 0.3s; }
+        .card:nth-child(8) { animation-delay: 0.35s; }
+        .card:nth-child(9) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header" id="header">
+    <div class="logo">
+        <div class="logo-icon">🧠</div>
+        <div class="logo-text">APEX <span>AI</span></div>
+    </div>
+    <div class="header-status">
+        <div class="mode-badge" id="modeBadge">📄 PAPER MODE</div>
+        <div class="status-badge" id="statusBadge">
+            <div class="status-dot"></div>
+            LIVE
+        </div>
+        <div style="font-size:12px; color:var(--text-muted)" id="clockDisplay">--:-- --</div>
+    </div>
+</header>
+
+<!-- Dashboard Grid -->
+<div class="dashboard">
+
+    <!-- Stat Cards -->
+    <div class="card stat-card" id="equityCard">
+        <div class="card-title">💰 Portfolio Value</div>
+        <div class="stat-value" id="equityValue">$100,000</div>
+        <div class="stat-label">Total Equity</div>
+    </div>
+    <div class="card stat-card" id="pnlCard">
+        <div class="card-title">📊 Today's P&L</div>
+        <div class="stat-value positive" id="pnlValue">$0.00</div>
+        <div class="stat-change" id="pnlPct">0.00%</div>
+    </div>
+    <div class="card stat-card">
+        <div class="card-title">🤖 LLM Decisions</div>
+        <div class="stat-value" id="decisionCount">0</div>
+        <div class="stat-label">Total Today</div>
+        <div class="stat-change neutral" id="llmCosts">T1: 0 | T2: 0</div>
+    </div>
+    <div class="card stat-card">
+        <div class="card-title">🏛️ Politician Signals</div>
+        <div class="stat-value" id="polCount">0</div>
+        <div class="stat-label">Active Signals</div>
+        <div class="stat-change" id="polStatus">Loading...</div>
+    </div>
+
+    <!-- Portfolio Chart -->
+    <div class="card chart-container">
+        <div class="card-title">📈 Portfolio Performance</div>
+        <canvas id="portfolioChart"></canvas>
+    </div>
+
+    <!-- Signal Heatmap -->
+    <div class="card heatmap-container">
+        <div class="card-title">🌡️ Signal Heatmap</div>
+        <div class="heatmap-grid" id="heatmapGrid">
+            <div class="heatmap-header"></div>
+            <div class="heatmap-header">RSI</div>
+            <div class="heatmap-header">MACD</div>
+            <div class="heatmap-header">VWAP</div>
+            <div class="heatmap-header">RVOL</div>
+            <div class="heatmap-header">NEWS</div>
+            <div class="heatmap-header">POL</div>
+            <div class="heatmap-header">SCORE</div>
+        </div>
+    </div>
+
+    <!-- LLM Reasoning -->
+    <div class="card reasoning-container">
+        <div class="card-title">🧠 Bot Brain — LLM Reasoning</div>
+        <div id="reasoningFeed">
+            <div class="decision-item">
+                <div class="decision-header">
+                    <div class="decision-ticker">Waiting for signals...</div>
+                </div>
+                <div class="decision-reasoning">The bot will display its thinking here once it starts making decisions.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Politician Feed -->
+    <div class="card politician-container">
+        <div class="card-title">🏛️ Capitol Hill — Congressional Trades</div>
+        <div id="politicianFeed">
+            <div class="pol-trade">
+                <div class="pol-avatar democrat">P</div>
+                <div class="pol-info">
+                    <div class="pol-name">Loading congressional trades...</div>
+                    <div class="pol-details">Data from STOCK Act disclosures</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trade Log -->
+    <div class="card trade-log">
+        <div class="card-title">📋 Trade Log</div>
+        <table class="trade-table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Ticker</th>
+                    <th>Action</th>
+                    <th>Qty</th>
+                    <th>Entry</th>
+                    <th>Stop Loss</th>
+                    <th>Take Profit</th>
+                    <th>Confidence</th>
+                    <th>Reasoning</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="tradeLogBody">
+                <tr><td colspan="10" style="text-align:center;color:var(--text-muted);padding:40px">No trades yet — waiting for bot to start trading</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+// ── Config ──
+const API_BASE = window.location.origin;
+const WS_URL = `ws://${window.location.host}/ws`;
+let ws = null;
+
+// ── Clock ──
+function updateClock() {
+    const now = new Date();
+    document.getElementById('clockDisplay').textContent = now.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── Portfolio Chart ──
+const ctx = document.getElementById('portfolioChart').getContext('2d');
+const portfolioChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'Portfolio Value',
+            data: [],
+            borderColor: '#8b5cf6',
+            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+        },
+        scales: {
+            x: {
+                grid: { color: 'rgba(255,255,255,0.03)' },
+                ticks: { color: '#64748b', maxTicksLimit: 10, font: { size: 10 } },
+            },
+            y: {
+                grid: { color: 'rgba(255,255,255,0.03)' },
+                ticks: { color: '#64748b', font: { size: 10 },
+                    callback: v => '$' + v.toLocaleString() },
+            }
+        },
+        interaction: { intersect: false, mode: 'index' },
+    }
+});
+
+// ── Heatmap Color ──
+function heatColor(value, min=-1, max=1) {
+    const norm = (value - min) / (max - min);
+    if (norm > 0.65) return `rgba(16, 185, 129, ${0.3 + norm * 0.4})`;
+    if (norm < 0.35) return `rgba(239, 68, 68, ${0.3 + (1-norm) * 0.4})`;
+    return 'rgba(148, 163, 184, 0.15)';
+}
+
+function heatTextColor(value, min=-1, max=1) {
+    const norm = (value - min) / (max - min);
+    if (norm > 0.65) return '#10b981';
+    if (norm < 0.35) return '#ef4444';
+    return '#94a3b8';
+}
+
+// ── Fetch Functions ──
+async function fetchData(endpoint) {
+    try {
+        const r = await fetch(`${API_BASE}${endpoint}`);
+        return await r.json();
+    } catch (e) {
+        console.error(`Fetch ${endpoint} error:`, e);
+        return null;
+    }
+}
+
+async function updatePortfolio() {
+    const data = await fetchData('/api/portfolio');
+    if (!data) return;
+    const acct = data.account || {};
+    const equity = parseFloat(acct.equity || 100000);
+    const lastEquity = parseFloat(acct.last_equity || equity);
+    const pnl = equity - lastEquity;
+    const pnlPct = lastEquity > 0 ? (pnl / lastEquity * 100) : 0;
+
+    document.getElementById('equityValue').textContent = '$' + equity.toLocaleString(undefined, {minimumFractionDigits: 0});
+    const pnlEl = document.getElementById('pnlValue');
+    pnlEl.textContent = (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toLocaleString(undefined, {minimumFractionDigits: 2});
+    pnlEl.className = 'stat-value ' + (pnl >= 0 ? 'positive' : 'negative');
+    document.getElementById('pnlPct').textContent = (pnl >= 0 ? '+' : '') + pnlPct.toFixed(2) + '%';
+    document.getElementById('pnlPct').className = 'stat-change ' + (pnl >= 0 ? 'positive' : 'negative');
+}
+
+async function updatePortfolioChart() {
+    const history = await fetchData('/api/portfolio/history');
+    if (!history || !history.length) return;
+    const sorted = history.reverse();
+    portfolioChart.data.labels = sorted.map(h => {
+        const d = new Date(h.timestamp);
+        return d.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+    });
+    portfolioChart.data.datasets[0].data = sorted.map(h => h.equity);
+    portfolioChart.update('none');
+}
+
+async function updateSignals() {
+    const signals = await fetchData('/api/signals');
+    if (!signals || !signals.length) return;
+    const grid = document.getElementById('heatmapGrid');
+    // Keep header row
+    const headers = grid.querySelectorAll('.heatmap-header');
+    grid.innerHTML = '';
+    headers.forEach(h => grid.appendChild(h));
+
+    signals.forEach(s => {
+        const rsiNorm = ((s.rsi || 50) - 50) / 50; // normalize RSI 0-100 to -1,1
+        const vals = [rsiNorm, s.macd || 0, s.vwap || 0, (s.rvol || 1) - 1, s.sentiment || 0, s.politician_score || 0, s.composite || 0];
+        const labels = [(s.rsi||50).toFixed(0), (s.macd||0).toFixed(3), (s.vwap||0).toFixed(1), (s.rvol||1).toFixed(1)+'x', (s.sentiment||0).toFixed(2), (s.politician_score||0).toFixed(2), (s.composite||0).toFixed(1)];
+
+        const tickerEl = document.createElement('div');
+        tickerEl.className = 'heatmap-ticker';
+        tickerEl.textContent = s.ticker;
+        grid.appendChild(tickerEl);
+
+        vals.forEach((v, i) => {
+            const cell = document.createElement('div');
+            cell.className = 'heatmap-cell';
+            cell.style.background = heatColor(v);
+            cell.style.color = heatTextColor(v);
+            cell.textContent = labels[i];
+            grid.appendChild(cell);
+        });
+    });
+}
+
+async function updateDecisions() {
+    const decisions = await fetchData('/api/decisions');
+    if (!decisions) return;
+    document.getElementById('decisionCount').textContent = decisions.length;
+
+    const feed = document.getElementById('reasoningFeed');
+    if (!decisions.length) return;
+    feed.innerHTML = decisions.map(d => `
+        <div class="decision-item">
+            <div class="decision-header">
+                <div class="decision-ticker">${d.ticker}</div>
+                <span class="decision-action action-${(d.action||'hold').toLowerCase()}">${d.action}</span>
+            </div>
+            <div class="decision-reasoning">${d.reasoning || 'No reasoning provided'}</div>
+            <div class="decision-meta">
+                Confidence: ${((d.confidence||0)*100).toFixed(0)}% · ${new Date(d.timestamp).toLocaleTimeString()}
+            </div>
+        </div>
+    `).join('');
+}
+
+async function updatePoliticians() {
+    const trades = await fetchData('/api/politicians');
+    if (!trades) return;
+    document.getElementById('polCount').textContent = trades.length;
+    document.getElementById('polStatus').textContent = trades.length > 0 ? 'Active' : 'No signals';
+    document.getElementById('polStatus').className = 'stat-change ' + (trades.length > 0 ? 'positive' : 'neutral');
+
+    const feed = document.getElementById('politicianFeed');
+    if (!trades.length) {
+        feed.innerHTML = '<div class="pol-trade"><div class="pol-info"><div class="pol-name">No recent congressional trades</div></div></div>';
+        return;
+    }
+    feed.innerHTML = trades.map(t => {
+        const party = (t.party||'').toLowerCase();
+        const initial = (t.name||'?')[0];
+        const sigClass = (t.signal_contribution||0) > 0 ? 'positive' : (t.signal_contribution||0) < 0 ? 'negative' : 'neutral';
+        const sigBg = (t.signal_contribution||0) > 0 ? 'rgba(16,185,129,0.2)' : (t.signal_contribution||0) < 0 ? 'rgba(239,68,68,0.2)' : 'rgba(148,163,184,0.15)';
+        return `
+            <div class="pol-trade">
+                <div class="pol-avatar ${party.includes('dem') ? 'democrat' : 'republican'}">${initial}</div>
+                <div class="pol-info">
+                    <div class="pol-name">${t.name} <span style="font-size:11px;color:var(--text-muted)">(${t.party || '?'})</span></div>
+                    <div class="pol-details">${t.action || 'Trade'} · ${t.amount || 'N/A'} · ${t.date || ''}</div>
+                    <div class="pol-details">${t.committee || ''}</div>
+                    <span class="pol-signal ${sigClass}" style="background:${sigBg}">
+                        Signal: ${(t.signal_contribution||0) > 0 ? '+' : ''}${(t.signal_contribution||0).toFixed(3)} · Alpha: ${((t.alpha_score||0)*100).toFixed(0)}%
+                    </span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+async function updateTrades() {
+    const trades = await fetchData('/api/trades');
+    if (!trades || !trades.length) return;
+    const tbody = document.getElementById('tradeLogBody');
+    tbody.innerHTML = trades.map(t => `
+        <tr>
+            <td>${new Date(t.timestamp).toLocaleTimeString()}</td>
+            <td style="font-weight:700">${t.ticker}</td>
+            <td><span class="decision-action action-${(t.action||'hold').toLowerCase()}">${t.action}</span></td>
+            <td>${t.qty}</td>
+            <td>$${(t.entry_price||0).toFixed(2)}</td>
+            <td>$${(t.stop_loss||0).toFixed(2)}</td>
+            <td>$${(t.take_profit||0).toFixed(2)}</td>
+            <td>${((t.confidence||0)*100).toFixed(0)}%</td>
+            <td style="max-width:300px;font-size:11px;color:var(--text-secondary)">${(t.reasoning||'').substring(0,120)}...</td>
+            <td><span class="${t.status === 'filled' ? 'positive' : 'neutral'}">${t.status}</span></td>
+        </tr>
+    `).join('');
+}
+
+// ── WebSocket ──
+function connectWS() {
+    ws = new WebSocket(WS_URL);
+    ws.onopen = () => console.log('WebSocket connected');
+    ws.onmessage = (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            if (data.type === 'update') {
+                // Update from WS data directly
+                if (data.signals) updateSignals();
+                if (data.decisions) updateDecisions();
+            }
+        } catch(e) {}
+    };
+    ws.onclose = () => {
+        console.log('WebSocket closed, reconnecting in 5s...');
+        setTimeout(connectWS, 5000);
+    };
+    ws.onerror = () => ws.close();
+}
+
+// ── Initialize ──
+async function init() {
+    await Promise.all([
+        updatePortfolio(),
+        updatePortfolioChart(),
+        updateSignals(),
+        updateDecisions(),
+        updatePoliticians(),
+        updateTrades(),
+    ]);
+    connectWS();
+    // Periodic refresh
+    setInterval(updatePortfolio, 15000);
+    setInterval(updatePortfolioChart, 30000);
+    setInterval(updateSignals, 10000);
+    setInterval(updateDecisions, 10000);
+    setInterval(updatePoliticians, 60000);
+    setInterval(updateTrades, 15000);
+}
+init();
+</script>
+</body>
+</html>

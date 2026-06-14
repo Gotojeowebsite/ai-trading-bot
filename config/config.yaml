@@ -1,0 +1,81 @@
+# AI Trading Bot Configuration
+watchlist:
+  - AAPL
+  - NVDA
+  - TSLA
+  - MSFT
+  - META
+  - GOOGL
+  - AMD
+  - AMZN
+
+risk_profile: moderate  # conservative | moderate | aggressive
+
+# Position sizing
+max_portfolio_pct_per_trade: 20    # max % of portfolio per single trade
+max_concurrent_positions: 3
+stop_loss_pct: 0.75                # stop loss below entry
+take_profit_pct: 1.5               # take profit above entry
+
+# Day trading
+trading_hours_start: "09:30"       # EST
+trading_hours_end: "15:55"         # close all by 3:55 PM
+premarket_scan_time: "08:00"
+
+# Signal weights
+weights:
+  vwap: 0.12
+  macd: 0.12
+  rsi: 0.10
+  bollinger: 0.08
+  ema: 0.10
+  rvol: 0.08
+  news_sentiment: 0.15
+  politician_signal: 0.15
+  macro_context: 0.10
+
+# Thresholds
+tier1_opportunity_threshold: 7.0   # /10 score to escalate to Tier 2
+buy_threshold: 0.45
+sell_threshold: -0.45
+
+# LLM config
+llm:
+  tier1_provider: gemini           # gemini | openai | anthropic
+  tier1_model: gemini-2.0-flash
+  tier2_provider: openai           # gemini | openai | anthropic
+  tier2_model: gpt-4o
+  fallback_provider: gemini
+  fallback_model: gemini-1.5-pro
+  decision_interval_seconds: 60
+  max_tier1_calls_per_day: 2000
+  max_tier2_calls_per_day: 300
+
+# Politician copy mode
+politician_mode:
+  enabled: true
+  weight_boost: false              # if true, politician weight goes to 25%
+  min_trade_amount: 15000          # minimum $ amount to consider
+  recency_window_days: 45
+  high_alpha_threshold: 0.70       # percentile for "high signal" politician
+
+# Broker
+broker:
+  provider: alpaca
+  mode: paper                      # paper | live
+  paper_url: "https://paper-api.alpaca.markets"
+  live_url: "https://api.alpaca.markets"
+
+# Dashboard
+dashboard:
+  host: "0.0.0.0"
+  port: 8080
+
+# Notifications
+notifications:
+  telegram_enabled: false
+  email_enabled: false
+
+# Database
+database:
+  path: "trading.db"
