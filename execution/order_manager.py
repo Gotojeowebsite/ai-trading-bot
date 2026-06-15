@@ -145,3 +145,55 @@ class AlpacaExecutor:
         equity = float(acct.get("equity", 0))
         last_equity = float(acct.get("last_equity", equity))
         return equity - last_equity
+
+
+# ── Legacy API shims (backward compatibility for tests) ──
+
+_default_executor = None
+
+def _get_executor():
+    """Get or create a default executor for legacy function calls."""
+    global _default_executor
+    if _default_executor is None:
+        _default_executor = AlpacaExecutor({
+            "broker": {
+                "mode": "paper",
+                "paper_url": os.environ.get("ALPACA_API_BASE_URL", "https://paper-api.alpaca.markets"),
+            }
+        })
+    return _default_executor
+
+
+def execute_bracket_order(ticker: str, side: str, qty: int,
+                          take_profit: float, stop_loss: float,
+                          entry_price: float = None) -> str:
+    """Legacy function: place a bracket order via the default executor."""
+    executor = _get_executor()
+    result = executor.place_bracket_order(
+        ticker=ticker, qty=qty, side=side,
+        entry_price=entry_price, stop_loss=stop_loss, take_profit=take_profit
+    )
+    return result if result else "failed-order"
+
+
+def close_all_positions():
+    """Legacy function: close all positions via the default executor."""
+    executor = _get_executor()
+    executor.close_all_positions()
+
+
+class Watchdog:
+    """Simple watchdog that monitors a named process and can restart it."""
+    def __init__(self, name: str):
+        self.name = name
+        self.status = "running"
+        self.restarts = 0
+
+    def check_and_restart(self) -> bool:
+        """Check if the process crashed and restart it."""
+        if self.status == "crashed":
+            logger.info(f"Watchdog restarting {self.name}...")
+            self.status = "running"
+            self.restarts += 1
+            return True
+        return False

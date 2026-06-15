@@ -1,6 +1,12 @@
 """
 Master Trading Loop - Fully automated day trading bot.
-Runs the complete cycle: premarket scan → signal collection → LLM decisions → order execution → EOD close.
+Runs the complete daily cycle with time-aware scheduling:
+  - Pre-market scan at 8:00 AM EST
+  - Trading loop 9:30 AM - 3:55 PM EST
+  - Auto-close all positions at 3:55 PM EST
+  - Daily summary at 4:00 PM EST
+  - Sleep overnight until next pre-market
+
 Zero human intervention required once started.
 """
 import os
@@ -10,21 +16,28 @@ import json
 import yaml
 import logging
 import sqlite3
-import asyncio
+import signal
 from datetime import datetime, timedelta
 from pathlib import Path
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from dotenv import load_dotenv
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # python-dotenv not installed, env vars must be set manually
+
+import pytz
 
 from automation.indicators import calculate_indicators
+from automation.scanner import run_scanner
 from engine.llm_brain import tier1_screen, tier2_decide
 from sentiment.finbert_client import get_sentiment
 from politician.copy_mode import get_politician_signals, get_all_recent_trades
 from execution.order_manager import AlpacaExecutor
+from notifications.alerts import notify_trade, notify_circuit_breaker, notify_daily_summary
 
 logging.basicConfig(
     level=logging.INFO,
@@ -32,6 +45,8 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(), logging.FileHandler("trading_bot.log")]
 )
 logger = logging.getLogger("trading_loop")
+
+EST = pytz.timezone("US/Eastern")
 
 
 def load_config() -> dict:
@@ -130,6 +145,9 @@ class TradingBot:
         self.tier1_calls = 0
         self.tier2_calls = 0
         self.circuit_breaker_tripped = False
+        self.premarket_scan_done = False
+        self.eod_close_done = False
+        self.daily_summary_sent = False
 
         # Limits from config
         self.max_positions = self.config.get("max_concurrent_positions", 3)
@@ -137,6 +155,33 @@ class TradingBot:
         self.max_tier2 = self.config.get("llm", {}).get("max_tier2_calls_per_day", 300)
         self.tier1_threshold = self.config.get("tier1_opportunity_threshold", 7.0)
         self.interval = self.config.get("llm", {}).get("decision_interval_seconds", 60)
+
+        # Time boundaries from config (EST)
+        self.premarket_scan_time = self.config.get("premarket_scan_time", "08:00")
+        self.trading_start = self.config.get("trading_hours_start", "09:30")
+        self.trading_end = self.config.get("trading_hours_end", "15:55")
+
+        # Graceful shutdown
+        signal.signal(signal.SIGINT, self._handle_shutdown)
+        signal.signal(signal.SIGTERM, self._handle_shutdown)
+
+    def _handle_shutdown(self, signum, frame):
+        logger.info("🛑 Shutdown signal received")
+        self.running = False
+
+    def _now_est(self) -> datetime:
+        """Get current time in EST."""
+        return datetime.now(EST)
+
+    def _time_str_to_today(self, time_str: str) -> datetime:
+        """Convert HH:MM string to today's datetime in EST."""
+        h, m = map(int, time_str.split(":"))
+        now = self._now_est()
+        return now.replace(hour=h, minute=m, second=0, microsecond=0)
+
+    def _is_trading_day(self) -> bool:
+        """Check if today is a weekday (basic check — no holiday calendar)."""
+        return self._now_est().weekday() < 5  # Mon=0, Fri=4
 
     def check_circuit_breaker(self) -> bool:
         """Check if daily loss limit hit."""
@@ -146,8 +191,30 @@ class TradingBot:
             logger.critical("⚠️ CIRCUIT BREAKER: Daily loss limit (-2%) reached! Stopping trading.")
             self.circuit_breaker_tripped = True
             self.executor.close_all_positions()
+            self.executor.cancel_all_orders()
+            # Send notification
+            notify_circuit_breaker(pnl, self.config)
             return True
         return False
+
+    def run_premarket_scan(self):
+        """Run the pre-market scanner on the watchlist."""
+        logger.info("=" * 50)
+        logger.info("🔍 RUNNING PRE-MARKET SCAN")
+        logger.info("=" * 50)
+        try:
+            db_path = self.config.get("database", {}).get("path", "trading.db")
+            results = run_scanner(db_path, self.watchlist, force=True)
+            if results:
+                # Log top movers
+                for r in results[:5]:
+                    gap = r.get("gap_percentage", 0)
+                    vol = r.get("premarket_volume", 0)
+                    arrow = "🟢" if gap > 0 else "🔴" if gap < 0 else "⚪"
+                    logger.info(f"  {arrow} {r['ticker']}: gap {gap:+.2f}%, premarket vol {vol:,}, news: {r.get('news_catalyst', 'N/A')[:60]}")
+            self.premarket_scan_done = True
+        except Exception as e:
+            logger.error(f"Pre-market scan error: {e}")
 
     def run_cycle(self, ticker: str):
         """Run one complete decision cycle for a ticker."""
@@ -249,11 +316,17 @@ class TradingBot:
                     self.db.commit()
                     logger.info(f"[{ticker}] ✅ ORDER PLACED: BUY {qty} shares @ ${price:.2f}, SL=${sl:.2f}, TP=${tp:.2f}")
 
+                    # Send trade notification
+                    notify_trade(ticker, "BUY", qty, price, decision.get("reasoning", ""), self.config)
+
         elif decision["action"] == "SELL":
             current = next((p for p in positions if p.get("symbol") == ticker), None)
             if current:
                 self.executor.close_position(ticker)
                 logger.info(f"[{ticker}] ✅ POSITION CLOSED")
+                notify_trade(ticker, "SELL", int(current.get("qty", 0)),
+                           float(current.get("current_price", 0)),
+                           decision.get("reasoning", ""), self.config)
 
     def snapshot_portfolio(self):
         """Save portfolio snapshot for dashboard charting."""
@@ -266,42 +339,157 @@ class TradingBot:
              len(positions), datetime.now().isoformat()))
         self.db.commit()
 
+    def eod_close(self):
+        """End-of-day: close all positions and cancel orders."""
+        logger.info("=" * 50)
+        logger.info("🏁 END OF DAY — Closing all positions")
+        logger.info("=" * 50)
+        self.executor.cancel_all_orders()
+        self.executor.close_all_positions()
+        self.eod_close_done = True
+
+    def send_daily_summary(self):
+        """Send daily P&L summary notification."""
+        acct = self.executor.get_account()
+        equity = float(acct.get("equity", 100000))
+        pnl = self.executor.get_daily_pnl()
+
+        # Calculate win rate from today's trades
+        try:
+            rows = self.db.execute(
+                "SELECT COUNT(*), SUM(CASE WHEN take_profit > entry_price THEN 1 ELSE 0 END) FROM trades WHERE date(timestamp) = date('now')"
+            ).fetchone()
+            total = rows[0] or 0
+            wins = rows[1] or 0
+            win_rate = wins / total if total > 0 else 0.0
+        except Exception:
+            win_rate = 0.0
+
+        notify_daily_summary(equity, pnl, self.daily_trades, win_rate, self.config)
+        self.daily_summary_sent = True
+        logger.info(f"📊 Daily Summary: Equity=${equity:,.2f}, P&L={'+'if pnl>=0 else ''}${pnl:,.2f}, Trades={self.daily_trades}")
+
+    def reset_daily_counters(self):
+        """Reset all daily counters for a new trading day."""
+        self.daily_trades = 0
+        self.daily_pnl = 0.0
+        self.tier1_calls = 0
+        self.tier2_calls = 0
+        self.circuit_breaker_tripped = False
+        self.premarket_scan_done = False
+        self.eod_close_done = False
+        self.daily_summary_sent = False
+        logger.info("🔄 Daily counters reset for new trading day")
+
     def run(self):
-        """Main trading loop - runs all day."""
+        """Main trading loop — runs continuously with time-aware scheduling."""
         logger.info("=" * 60)
-        logger.info("🤖 AI TRADING BOT STARTING")
+        logger.info("🤖 APEX AI TRADING BOT STARTING")
         logger.info(f"   Mode: {self.config.get('broker', {}).get('mode', 'paper').upper()}")
         logger.info(f"   Watchlist: {', '.join(self.watchlist)}")
         logger.info(f"   Tier 1 LLM: {self.config.get('llm', {}).get('tier1_provider', 'gemini')}/{self.config.get('llm', {}).get('tier1_model', 'gemini-2.0-flash')}")
         logger.info(f"   Tier 2 LLM: {self.config.get('llm', {}).get('tier2_provider', 'openai')}/{self.config.get('llm', {}).get('tier2_model', 'gpt-4o')}")
+        logger.info(f"   Pre-market scan: {self.premarket_scan_time} EST")
+        logger.info(f"   Trading hours: {self.trading_start} - {self.trading_end} EST")
         logger.info("=" * 60)
 
         cycle = 0
+        last_date = None
+
         while self.running:
             try:
-                cycle += 1
-                now = datetime.now()
-                logger.info(f"\n--- Cycle {cycle} | {now.strftime('%I:%M:%S %p')} | Trades today: {self.daily_trades} | T1 calls: {self.tier1_calls} | T2 calls: {self.tier2_calls} ---")
+                now = self._now_est()
+                today = now.date()
 
-                # Check circuit breaker
-                if self.check_circuit_breaker():
-                    logger.critical("Circuit breaker active — waiting for next trading day")
-                    time.sleep(300)
+                # ── New day reset ──
+                if last_date != today:
+                    self.reset_daily_counters()
+                    last_date = today
+
+                # ── Weekend / holiday check ──
+                if not self._is_trading_day():
+                    logger.info(f"📅 Weekend detected ({now.strftime('%A')}). Sleeping until Monday...")
+                    # Sleep until next Monday 7:30 AM EST
+                    days_until_monday = (7 - now.weekday()) % 7
+                    if days_until_monday == 0:
+                        days_until_monday = 7
+                    next_monday = now.replace(hour=7, minute=30, second=0) + timedelta(days=days_until_monday)
+                    sleep_seconds = (next_monday - now).total_seconds()
+                    logger.info(f"   Next wake-up: {next_monday.strftime('%A %I:%M %p EST')}")
+                    self._interruptible_sleep(min(sleep_seconds, 3600))  # Check every hour
                     continue
 
-                # Run cycle for each ticker
-                for ticker in self.watchlist:
-                    try:
-                        self.run_cycle(ticker)
-                    except Exception as e:
-                        logger.error(f"[{ticker}] Cycle error: {e}")
+                premarket_time = self._time_str_to_today(self.premarket_scan_time)
+                trading_start = self._time_str_to_today(self.trading_start)
+                trading_end = self._time_str_to_today(self.trading_end)
+                summary_time = now.replace(hour=16, minute=0, second=0)
 
-                # Snapshot portfolio
-                self.snapshot_portfolio()
+                # ── PHASE 1: Before pre-market (before 8:00 AM) ──
+                if now < premarket_time:
+                    wait_secs = (premarket_time - now).total_seconds()
+                    logger.info(f"⏰ Waiting for pre-market scan at {self.premarket_scan_time} EST ({wait_secs/60:.0f} min)...")
+                    self._interruptible_sleep(min(wait_secs, 300))
+                    continue
 
-                # Wait for next cycle
-                logger.info(f"Sleeping {self.interval}s until next cycle...")
-                time.sleep(self.interval)
+                # ── PHASE 2: Pre-market scan (8:00 AM - 9:30 AM) ──
+                if now >= premarket_time and now < trading_start:
+                    if not self.premarket_scan_done:
+                        self.run_premarket_scan()
+                    else:
+                        wait_secs = (trading_start - now).total_seconds()
+                        logger.info(f"⏰ Pre-market scan done. Trading starts at {self.trading_start} EST ({wait_secs/60:.0f} min)...")
+                        self._interruptible_sleep(min(wait_secs, 60))
+                    continue
+
+                # ── PHASE 3: Active trading (9:30 AM - 3:55 PM) ──
+                if now >= trading_start and now < trading_end:
+                    cycle += 1
+                    logger.info(f"\n--- Cycle {cycle} | {now.strftime('%I:%M:%S %p')} | Trades: {self.daily_trades} | T1: {self.tier1_calls} | T2: {self.tier2_calls} ---")
+
+                    # Check circuit breaker
+                    if self.check_circuit_breaker():
+                        logger.critical("Circuit breaker active — waiting for EOD")
+                        self._interruptible_sleep(300)
+                        continue
+
+                    # Run cycle for each ticker
+                    for ticker in self.watchlist:
+                        if not self.running:
+                            break
+                        try:
+                            self.run_cycle(ticker)
+                        except Exception as e:
+                            logger.error(f"[{ticker}] Cycle error: {e}")
+
+                    # Snapshot portfolio
+                    self.snapshot_portfolio()
+
+                    # Wait for next cycle
+                    logger.info(f"Sleeping {self.interval}s until next cycle...")
+                    self._interruptible_sleep(self.interval)
+                    continue
+
+                # ── PHASE 4: End of day close (3:55 PM) ──
+                if now >= trading_end and not self.eod_close_done:
+                    self.eod_close()
+                    continue
+
+                # ── PHASE 5: Daily summary (4:00 PM) ──
+                if now >= summary_time and not self.daily_summary_sent:
+                    self.send_daily_summary()
+                    continue
+
+                # ── PHASE 6: After hours — sleep until next day ──
+                if now >= summary_time and self.daily_summary_sent:
+                    tomorrow_premarket = (now + timedelta(days=1)).replace(
+                        hour=int(self.premarket_scan_time.split(":")[0]),
+                        minute=int(self.premarket_scan_time.split(":")[1]),
+                        second=0
+                    )
+                    sleep_secs = (tomorrow_premarket - now).total_seconds()
+                    logger.info(f"🌙 Trading day complete. Sleeping until {tomorrow_premarket.strftime('%A %I:%M %p EST')}...")
+                    self._interruptible_sleep(min(sleep_secs, 3600))  # Check every hour
+                    continue
 
             except KeyboardInterrupt:
                 logger.info("🛑 Bot stopped by user")
@@ -310,10 +498,18 @@ class TradingBot:
                 logger.error(f"Main loop error: {e}")
                 time.sleep(30)
 
-        # EOD cleanup
-        logger.info("Closing all positions (EOD)...")
+        # ── Shutdown cleanup ──
+        logger.info("Closing all positions (shutdown)...")
         self.executor.close_all_positions()
+        if not self.daily_summary_sent:
+            self.send_daily_summary()
         logger.info("🏁 Trading bot shut down cleanly")
+
+    def _interruptible_sleep(self, seconds: float):
+        """Sleep that can be interrupted by shutdown signal."""
+        end = time.time() + seconds
+        while time.time() < end and self.running:
+            time.sleep(min(1.0, end - time.time()))
 
 
 def main():

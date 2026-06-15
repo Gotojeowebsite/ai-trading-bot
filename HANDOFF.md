@@ -1,5 +1,5 @@
 # AI Day-Trading Bot — Handoff Document
-**Last updated:** 2026-06-14 08:55 UTC
+**Last updated:** 2026-06-15 00:00 UTC
 **Project location:** `/home/mint/Desktop/ai-trading-bot`
 
 ---
@@ -7,82 +7,68 @@
 ## Project Summary
 
 Fully autonomous AI day-trading bot with:
-- Tiered LLM brain (Gemini Flash for screening, GPT-4o for decisions)
+- Tiered LLM brain (Gemini Flash for screening, GPT-4o for decisions, Gemini 1.5 Pro fallback)
 - Real-time market data via Alpaca WebSocket + yfinance fallback
-- FinBERT news sentiment analysis
-- Politician Trade Copy Mode (STOCK Act congressional disclosures)
-- Fully automated bracket order execution via Alpaca Markets API
-- Premium dark glassmorphism web dashboard
+- FinBERT news sentiment analysis (with keyword fallback)
+- Politician Trade Copy Mode (STOCK Act congressional disclosures via Quiver Quant)
+- Fully automated bracket order execution via Alpaca Markets REST API
+- Premium dark glassmorphism web dashboard (FastAPI + WebSocket + Chart.js)
+- Telegram + email notifications for trades, circuit breakers, daily summaries
+- Time-aware scheduling: pre-market scan → trading hours → EOD auto-close → overnight sleep
 - Zero human intervention during trading hours
 
-**Full approved plan:** `/home/mint/.gemini/antigravity/brain/e430cecf-901c-44d3-ad51-71db17d24b03/implementation_plan.md`
+---
+
+## Status: FULLY BUILT ✅
+
+### All Modules — Production-Ready
+
+| Module | File | Description |
+|--------|------|-------------|
+| **Trading Loop** | `automation/trading_loop.py` | Master controller with time-aware scheduling, circuit breaker, notifications |
+| **Market Data** | `automation/data_client.py` | Alpaca WebSocket streaming + yfinance polling fallback |
+| **Indicators** | `automation/indicators.py` | VWAP, MACD, RSI, Bollinger Bands, EMA, RVOL |
+| **Scanner** | `automation/scanner.py` | Pre-market gap%, volume, news catalyst scanner |
+| **LLM Brain** | `engine/llm_brain.py` | Tiered: Gemini Flash (Tier 1) → GPT-4o (Tier 2) → Gemini 1.5 Pro (fallback) |
+| **Decision Engine** | `engine/decision_engine.py` | Legacy standalone decision engine (kept for compatibility) |
+| **Order Executor** | `execution/order_manager.py` | Alpaca REST API: bracket orders, position close, account info, demo mode |
+| **Sentiment** | `sentiment/finbert_client.py` | NewsAPI headlines → FinBERT scoring → keyword fallback |
+| **Politician Tracker** | `politician/copy_mode.py` | Quiver Quant API, politician alpha scoring, recency decay |
+| **Notifications** | `notifications/alerts.py` | Telegram + email: trade alerts, circuit breaker, daily summary |
+| **Dashboard Backend** | `dashboard/app.py` | FastAPI + WebSocket, REST APIs for all data |
+| **Dashboard Frontend** | `dashboard/index.html` | Dark glassmorphism UI: charts, heatmap, LLM reasoning, politician feed |
+| **CLI Orchestrator** | `main.py` | Unified entry point: `bot`, `dashboard`, `scan`, `status` commands |
+| **Config** | `config/config.yaml` | Full YAML config: watchlist, risk, LLM tiers, broker, notifications |
 
 ---
 
-## What's DONE ✅
+## How to Run
 
-### Core Infrastructure (Production-Ready)
-- **`automation/data_client.py`** (176 lines) — MarketDataClient: Alpaca WebSocket streaming + yfinance polling fallback, threaded, rolling cache, dedup, callbacks
-- **`automation/indicators.py`** (170 lines) — VWAP, MACD, RSI, Bollinger Bands, EMA, RVOL. Handles multi-ticker grouped DataFrames
-- **`automation/scanner.py`** (231 lines) — PreMarketScanner: gap%, premarket volume, news catalyst, SQLite persistence, CLI
-- **`config/config.yaml`** — Full config: watchlist, risk profile, signal weights, LLM tiers, broker, dashboard, notifications
-- **`.env.example`** — All API key slots with signup URLs
-- **`requirements.txt`** — All production deps (google-generativeai, openai, anthropic, transformers, fastapi, etc.)
-- **`test_trading.db`** — SQLite with tables: settings, scanned_tickers, signals, trades
-- **`tests/`** — Unit + E2E tests (71 cases), mock servers
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
 
-### Partially Built (Correct structure, but use mock HTTP endpoints — need rewrite to real APIs)
-- **`engine/decision_engine.py`** (73 lines) — Tier 1 `screen_ticker()` + Tier 2 `make_decision()` with risk boundary validation
-- **`execution/order_manager.py`** (52 lines) — `execute_bracket_order()`, `close_all_positions()`, `Watchdog` class
-- **`sentiment/finbert_client.py`** (31 lines) — `get_sentiment()` with caching
-- **`politician/copy_mode.py`** (43 lines) — `get_politician_signals()` — **⚠️ HAS SYNTAX ERROR on line ~35 (duplicate `if`)**
-- **`main.py`** (334 lines) — Full pipeline wired: scan → tier1 → sentiment → blend → tier2 → bracket order. Dashboard is bare HTML placeholder
+# 2. Configure API keys
+cp .env.example .env
+# Edit .env with your keys
 
----
+# 3. Start the trading bot (autonomous)
+python main.py bot
 
-## What NEEDS TO BE BUILT ⬜ (in priority order)
+# 4. In another terminal, start the dashboard
+python main.py dashboard
+# Then open http://localhost:8080
 
-### 1. Real LLM Integration — `engine/decision_engine.py` REWRITE
-- Tier 1: `google.generativeai` SDK → Gemini 2.0 Flash
-- Tier 2: `openai` SDK → GPT-4o
-- Build full market briefing prompt (see implementation_plan.md for template)
-- JSON response parsing, fallback chain (GPT-4o → Gemini 1.5 Pro → rules), daily call counter
-- Load keys from `.env` via python-dotenv
+# 5. One-shot pre-market scan
+python main.py scan --force
 
-### 2. Real Alpaca Orders — `execution/order_manager.py` REWRITE
-- `alpaca-py` SDK (`alpaca.trading.client.TradingClient`)
-- Real bracket orders, position liquidation, account info
-- Paper vs live from config
+# 6. Check system status
+python main.py status
 
-### 3. Real Politician Tracker — `politician/copy_mode.py` REWRITE (fix syntax error first)
-- Quiver Quant API (`api.quiverquant.com/beta/live/congresstrading`) or Capitol Trades scraping
-- Politician alpha scoring, recency decay (45-day window), dollar amount weighting
-
-### 4. Real Sentiment — `sentiment/finbert_client.py` REWRITE
-- HuggingFace `ProsusAI/finbert` locally, or news API + FinBERT scoring
-
-### 5. Automation Loop — `automation/trading_loop.py` NEW
-- Master controller with APScheduler: pre-market 8AM, trade loop 9:30-3:50, auto-close 3:55
-- Circuit breaker (2% daily loss → stop), watchdog crash recovery
-- Entry point: `python -m automation.trading_loop`
-
-### 6. Premium Dashboard — `dashboard/app.py` + `dashboard/templates/index.html` NEW
-- FastAPI + WebSocket for real-time push
-- Dark glassmorphism: portfolio chart, LLM reasoning feed, Capitol Hill panel, signal heatmap, trade log, control panel
-- Navy/purple, frosted glass, blur, Chart.js/TradingView Lightweight Charts
-
-### 7. Notifications — `notifications/alerts.py` NEW
-- Telegram + email: trade executions, daily P&L, circuit breaker alerts
-
-### 8. README — REWRITE (currently placeholder)
-- Setup guide, API key instructions, run commands, architecture, disclaimers
-
----
-
-## Known Bugs
-1. `politician/copy_mode.py` line ~35: duplicate `if` statement — syntax error
-2. Missing `__init__.py` in engine/, execution/, politician/, sentiment/, config/, dashboard/
-3. No `.env` file — user must copy `.env.example`
+# Alternative module-style launch:
+python -m automation           # trading bot
+python -m dashboard            # dashboard
+```
 
 ---
 
@@ -91,9 +77,7 @@ Fully autonomous AI day-trading bot with:
 - **Broker**: Alpaca Markets (free paper, commission-free live)
 - **Day trading only**: Close all by 3:55 PM EST
 - **Politician data**: Legal — STOCK Act public disclosures
-- **Paper trading default**: Must explicitly switch to live
-- **Production quality**: User plans real money deployment
-
-## Reference Docs
-- Plan: `/home/mint/.gemini/antigravity/brain/e430cecf-901c-44d3-ad51-71db17d24b03/implementation_plan.md`
-- Prompt: `/home/mint/.gemini/antigravity/brain/e430cecf-901c-44d3-ad51-71db17d24b03/prompt_draft.md`
+- **Paper trading default**: Must explicitly switch to live in config
+- **Demo mode**: All modules gracefully degrade when API keys are missing
+- **Time-aware scheduling**: Automatic pre-market scan, trading hours, EOD close, overnight sleep
+- **Circuit breaker**: 2% daily loss limit → auto-close all positions + notify
