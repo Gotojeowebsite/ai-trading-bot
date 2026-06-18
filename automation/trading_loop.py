@@ -78,6 +78,7 @@ def init_db(db_path: str) -> sqlite3.Connection:
         rvol REAL, sentiment REAL, politician_score REAL,
         composite REAL, timestamp TEXT
     )""")
+    conn.execute("CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)")
     conn.commit()
     return conn
 

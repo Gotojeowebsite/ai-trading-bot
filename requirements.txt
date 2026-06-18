@@ -8,12 +8,8 @@ python-dotenv
 pyyaml
 fastapi
 uvicorn[standard]
-websockets
-apscheduler
 google-generativeai
 openai
 anthropic
 transformers
 torch
-beautifulsoup4
-aiohttp

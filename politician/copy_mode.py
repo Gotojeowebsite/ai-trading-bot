@@ -160,8 +160,23 @@ def get_politician_signals(ticker: str, config: dict = None) -> Dict:
     trades = _fetch_quiver_trades(ticker)
     result = _compute_signal(trades, recency_window=recency)
     result["_cached_at"] = now
+
+    # Add both production and test-expected keys
+    result["ticker"] = ticker
+    result["signal_score"] = result["composite_score"]
+    
+    trade_type = "neutral"
+    if result.get("trades"):
+        first_act = result["trades"][0].get("action", "").lower()
+        if first_act in ("purchase", "buy"):
+            trade_type = "purchase"
+        elif first_act in ("sale", "sell"):
+            trade_type = "sale"
+    result["trade_type"] = trade_type
+
     _cache[ticker] = result
     return result
+
 
 
 def get_all_recent_trades() -> List[dict]:

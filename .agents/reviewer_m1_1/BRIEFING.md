@@ -1,31 +1,34 @@
-# BRIEFING — 2026-06-14T08:38:53Z
+# BRIEFING — 2026-06-18T06:38:48Z
 
 ## Mission
-Perform an independent, adversarial, and quality review of the Milestone 1 implementation.
+Review the implementation of Milestone 1 for correctness, completeness, robustness, and interface conformance, run all tests using pytest, and write review and handoff reports.
 
 ## 🔒 My Identity
-- Archetype: reviewer_critic
+- Archetype: reviewer & critic
 - Roles: reviewer, critic
-- Working directory: /home/mint/Desktop/ai-trading-bot/.agents/reviewer_m1_1/
-- Original parent: c11e1ea8-9fb6-45f4-9262-e5419da6bcd1
+- Working directory: /workspaces/ai-trading-bot/.agents/reviewer_m1_1
+- Original parent: 810252a6-97bd-4ecf-9e29-13aae8c3ffe4
 - Milestone: Milestone 1
 - Instance: 1 of 1
 
 ## 🔒 Key Constraints
 - Review-only — do NOT modify implementation code
-- Check for integrity violations (no hardcoded test results, facade implementations, bypassed tasks, fabricated outputs)
+- Operating in CODE_ONLY network mode
+- Review opinions must be evidence-based
+- Active integrity check: look for hardcoded tests, dummy/facade implementations, or shortcuts
 
 ## Current Parent
-- Conversation ID: c11e1ea8-9fb6-45f4-9262-e5419da6bcd1
+- Conversation ID: 810252a6-97bd-4ecf-9e29-13aae8c3ffe4
 - Updated: not yet
 
 ## Review Scope
-- **Files to review**: `automation/indicators.py`, `automation/data_client.py`, `automation/scanner.py`
-- **Interface contracts**: `PROJECT.md`, `SCOPE.md`
-- **Review criteria**: Correctness (VWAP daily reset, MACD, RSI Wilder's method, Bollinger Bands, EMA crossover, RVOL, cache lock thread-safety, scanner timezone, database schema, CLI args), Completeness, Robustness, Interface conformance, Run tests.
+- **Files to review**: modified files in the codebase as described in /workspaces/ai-trading-bot/.agents/worker_m1_gen3/handoff.md
+- **Interface contracts**: /workspaces/ai-trading-bot/.agents/orchestrator/PROJECT.md and /workspaces/ai-trading-bot/.agents/sub_orch_m1/SCOPE.md
+- **Review criteria**: correctness, completeness, robustness, interface conformance
 
 ## Key Decisions Made
-- Initializing the review process.
+- Initiated review task.
 
 ## Artifact Index
-- `/home/mint/Desktop/ai-trading-bot/.agents/reviewer_m1_1/handoff.md` — Quality review and adversarial challenge handoff report.
+- /workspaces/ai-trading-bot/.agents/reviewer_m1_1/review.md — Quality and adversarial review findings
+- /workspaces/ai-trading-bot/.agents/reviewer_m1_1/handoff.md — Handoff report

@@ -1,19 +1,8 @@
-## 2026-06-14T08:38:53Z
+## 2026-06-18T06:38:48Z
 
-<USER_REQUEST>
-Your identity: Milestone 1 Reviewer 1.
-Your working directory is /home/mint/Desktop/ai-trading-bot/.agents/reviewer_m1_1/
-
-Task:
-Perform an independent review of the Milestone 1 implementation (Market Data client, Technical Indicators, Pre-market Scanner).
-
-Verify:
-1. Correctness: Review indicators calculation in `automation/indicators.py` (check VWAP daily reset, MACD, RSI Wilder's method, Bollinger Bands, EMA crossover, and RVOL). Check thread-safety of cache locking in `automation/data_client.py`. Check timezone calculations in `automation/scanner.py`. Check database schema and CLI args.
-2. Completeness: Ensure all requested technical indicators, pre-market scanner filters, and client features are implemented.
-3. Robustness: Check for edge cases such as empty data, NaN handling, division by zero, websocket drops.
-4. Interface conformance: Verify code conforms to contracts in PROJECT.md and SCOPE.md.
-5. Run tests: Run `python3 -m pytest tests/` in the workspace to verify that tests are passing. Propose additional test cases if needed.
-
-Write your review report to `/home/mint/Desktop/ai-trading-bot/.agents/reviewer_m1_1/handoff.md` and declare a verdict: PASS or FAIL (with detailed issues).
-Send a message to the caller (id: c11e1ea8-9fb6-45f4-9262-e5419da6bcd1) indicating you are done and providing the path to your handoff.md.
-</USER_REQUEST>
+You are the Reviewer agent 1. Your working directory is /workspaces/ai-trading-bot/.agents/reviewer_m1_1.
+Read the project scope in /workspaces/ai-trading-bot/.agents/orchestrator/PROJECT.md and the milestone scope in /workspaces/ai-trading-bot/.agents/sub_orch_m1/SCOPE.md.
+Examine the changes made to the codebase (you can view the worker handoff at /workspaces/ai-trading-bot/.agents/worker_m1_gen3/handoff.md and inspect the modified files).
+Review the changes for correctness, completeness, robustness, and interface conformance.
+Run all tests using pytest to verify they pass successfully.
+Write your review report to /workspaces/ai-trading-bot/.agents/reviewer_m1_1/review.md and handoff report to /workspaces/ai-trading-bot/.agents/reviewer_m1_1/handoff.md, then send a message back to the parent sub-orchestrator.

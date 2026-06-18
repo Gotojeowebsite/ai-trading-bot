@@ -5,7 +5,14 @@ import subprocess
 import sqlite3
 from http.server import HTTPServer
 import threading
-from tests.e2e.mocks.mock_server import MockHTTPRequestHandler, MockWebSocketServer, state
+from tests.e2e.mocks.mock_server import MockHTTPRequestHandler, MockWebSocketServer, MockIBSocketServer, state
+
+# Monkey-patch override for dashboard.app.get_db to isolate dashboard database connections
+try:
+    import dashboard.app
+    dashboard.app.get_db = lambda: sqlite3.connect(os.environ.get("DATABASE_PATH", "test_trading.db"))
+except ImportError:
+    pass
 
 # Patch yfinance for offline mock testing
 import yfinance as yf
@@ -51,7 +58,7 @@ yf.download = lambda tickers, *args, **kwargs: MockTicker(tickers).history(*args
 
 @pytest.fixture(scope="session", autouse=True)
 def mock_servers():
-    """Starts the E2E HTTP and WebSocket mock servers in the background."""
+    """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
     # Start HTTP Server
     http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
     http_thread = threading.Thread(target=http_server.serve_forever, daemon=True)
@@ -61,9 +68,15 @@ def mock_servers():
     ws_server = MockWebSocketServer("127.0.0.1", 8002)
     ws_server.start()
 
+    # Start IB Socket Server
+    ib_server = MockIBSocketServer("127.0.0.1", 7497)
+    ib_server.start()
+
     # Inject mock endpoints into environment for the test session
     os.environ["ALPACA_API_BASE_URL"] = "http://localhost:8001/alpaca"
     os.environ["ALPACA_WS_BASE_URL"] = "ws://localhost:8002"
+    os.environ["ALPACA_API_KEY"] = "mock_key"
+    os.environ["ALPACA_SECRET_KEY"] = "mock_secret"
     os.environ["OPENAI_API_BASE"] = "http://localhost:8001/openai"
     os.environ["GEMINI_API_BASE"] = "http://localhost:8001/gemini"
     os.environ["FINBERT_API_URL"] = "http://localhost:8001/sentiment"
@@ -76,6 +89,7 @@ def mock_servers():
     # Teardown
     http_server.shutdown()
     ws_server.stop()
+    ib_server.stop()
 
 @pytest.fixture(autouse=True)
 def clean_database():
@@ -88,6 +102,8 @@ def clean_database():
     # Drop and recreate standard tables for test run
     cursor.execute("DROP TABLE IF EXISTS scanned_tickers")
     cursor.execute("DROP TABLE IF EXISTS trades")
+    cursor.execute("DROP TABLE IF EXISTS decisions")
+    cursor.execute("DROP TABLE IF EXISTS portfolio_snapshots")
     cursor.execute("DROP TABLE IF EXISTS signals")
     cursor.execute("DROP TABLE IF EXISTS settings")
     
@@ -100,14 +116,28 @@ def clean_database():
     """)
     cursor.execute("""
         CREATE TABLE trades (
-            id TEXT PRIMARY KEY, ticker TEXT, side TEXT, qty INTEGER, entry_price REAL,
-            stop_loss REAL, take_profit REAL, status TEXT, timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            id TEXT PRIMARY KEY, ticker TEXT, side TEXT, action TEXT, qty INTEGER, entry_price REAL,
+            stop_loss REAL, take_profit REAL, confidence REAL, reasoning TEXT, status TEXT,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE decisions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, ticker TEXT, action TEXT, confidence REAL,
+            reasoning TEXT, timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE portfolio_snapshots (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, equity REAL, cash REAL, daily_pnl REAL,
+            open_positions TEXT, timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
     cursor.execute("""
         CREATE TABLE signals (
             ticker TEXT PRIMARY KEY, sentiment_score REAL, politician_score REAL,
-            blended_score REAL, timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            blended_score REAL, rsi REAL, macd REAL, vwap REAL, rvol REAL,
+            sentiment REAL, composite REAL, timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
     cursor.execute("""
@@ -155,6 +185,7 @@ def run_cli():
 @pytest.fixture
 def dashboard_server():
     """Starts the main.py dashboard server in a background subprocess."""
+    subprocess.run(["fuser", "-k", "8000/tcp"], capture_output=True)
     p = subprocess.Popen(["python3", "main.py", "--mode", "dashboard"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     time.sleep(1.0)
     yield "http://localhost:8000"

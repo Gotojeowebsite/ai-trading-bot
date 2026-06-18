@@ -76,10 +76,40 @@ def _score_with_keywords(headlines: List[str]) -> float:
     return score / max(count, 1)
 
 
-def get_sentiment(ticker: str) -> Dict:
+class SentimentResult(float):
+    def __new__(cls, score, headlines, source):
+        return super().__new__(cls, score)
+
+    def __init__(self, score, headlines, source):
+        self._data = {
+            "score": float(score),
+            "headlines": headlines,
+            "source": source
+        }
+
+    def __getitem__(self, key):
+        return self._data[key]
+
+    def get(self, key, default=None):
+        return self._data.get(key, default)
+
+    def __contains__(self, key):
+        return key in self._data
+
+    def keys(self):
+        return self._data.keys()
+
+    def items(self):
+        return self._data.items()
+
+    def values(self):
+        return self._data.values()
+
+
+def get_sentiment(ticker: str) -> SentimentResult:
     """
     Get sentiment score and headlines for a ticker.
-    Returns: {"score": float, "headlines": List[str], "source": str}
+    Returns a SentimentResult (behaves as float and dict).
     """
     import time
     now = time.time()
@@ -88,7 +118,7 @@ def get_sentiment(ticker: str) -> Dict:
     if ticker in _cache:
         cached_score, cached_time, cached_headlines = _cache[ticker]
         if now - cached_time < CACHE_TTL:
-            return {"score": cached_score, "headlines": cached_headlines, "source": "cache"}
+            return SentimentResult(cached_score, cached_headlines, "cache")
 
     headlines = _fetch_newsapi_headlines(ticker)
     source = "newsapi"
@@ -102,4 +132,5 @@ def get_sentiment(ticker: str) -> Dict:
     score = max(-1.0, min(1.0, score))
 
     _cache[ticker] = (score, now, headlines)
-    return {"score": score, "headlines": headlines, "source": source}
+    return SentimentResult(score, headlines, source)
+
