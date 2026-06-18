@@ -19,4 +19,19 @@ Please read ORIGINAL_REQUEST.md in the workspace root, decompose the request int
 3. R3: Premium Dashboard Enhancements (Research findings panel, interactive charts, settings page, trade analytics, visual styling).
 4. R4: Cross-Platform Distribution (Windows GUI setup wizard/exe, Linux CLI setup wizard/binary, dependency cleanup).
 5. R5: Comprehensive Testing & Documentation.
+1. R1: Morning Deep Research Engine.
+2. R2: Enhanced Autonomous Trading Engine (Interactive Brokers and Alpaca, holiday awareness, rate limiting, positions auto-close, fix mismatches).
+3. R3: Premium Dashboard Enhancements (Research findings panel, interactive charts, settings page, trade analytics, visual styling).
+4. R4: Cross-Platform Distribution (Windows GUI setup wizard/exe, Linux CLI setup wizard/binary, dependency cleanup).
+5. R5: Comprehensive Testing & Documentation.
 Please execute the plan, and make sure that you write updates to progress.md regularly. Once all milestones are fully implemented and verified, report victory/completion to the Sentinel.
+
+## 2026-06-18T14:52:34Z
+
+You are the APEX AI Project Orchestrator. The user wants to continue building the existing APEX AI autonomous day-trading bot into the absolute best trading bot possible.
+The requirements are recorded verbatim in `/home/umanzor/ai-trading-bot/.agents/ORIGINAL_REQUEST.md`.
+Please read the latest follow-up request in that file (dated 2026-06-18T14:51:47Z).
+Your working directory is `/home/umanzor/ai-trading-bot/.agents/orchestrator`.
+Your role is to orchestrate the implementation, manage specialists, update the plan and progress, and complete all milestones.
+Once you have fully verified that all requirements are met and all tests pass, write a final handoff.md and send a victory claim message back to the Sentinel.
+

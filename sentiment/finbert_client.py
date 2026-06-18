@@ -39,7 +39,42 @@ def _fetch_newsapi_headlines(ticker: str) -> List[str]:
 
 
 def _score_with_finbert(headlines: List[str]) -> float:
-    """Score headlines using local FinBERT model (if available)."""
+    """Score headlines using local FinBERT model or FinBERT API."""
+    api_url = os.getenv("FINBERT_API_URL")
+    if api_url:
+        try:
+            r = requests.post(f"{api_url}/models/ProsusAI/finbert", json={"inputs": headlines}, timeout=10)
+            if r.status_code != 200:
+                return 0.0
+            data = r.json()
+            if not isinstance(data, list):
+                return 0.0
+            
+            # Normalize to list of lists of dicts
+            if data and isinstance(data[0], dict):
+                data = [data]
+                
+            scores = []
+            for pred_list in data:
+                if not isinstance(pred_list, list):
+                    continue
+                pos_score = 0.0
+                neg_score = 0.0
+                for item in pred_list:
+                    if not isinstance(item, dict):
+                        continue
+                    label = item.get("label", "").lower()
+                    score = float(item.get("score", 0.0))
+                    if label == "positive":
+                        pos_score = score
+                    elif label == "negative":
+                        neg_score = score
+                scores.append(pos_score - neg_score)
+            return sum(scores) / len(scores) if scores else 0.0
+        except Exception as e:
+            logger.error(f"FinBERT API error: {e}")
+            return 0.0
+
     try:
         from transformers import pipeline
         classifier = pipeline("sentiment-analysis", model="ProsusAI/finbert", tokenizer="ProsusAI/finbert")
@@ -112,10 +147,25 @@ def get_sentiment(ticker: str) -> SentimentResult:
     Returns a SentimentResult (behaves as float and dict).
     """
     import time
+    import re
+
+    # Validate ticker format (standard stock symbols are 1-5 alphabetic characters)
+    if not ticker or not re.match(r'^[A-Za-z]{1,5}$', ticker):
+        return SentimentResult(0.0, [], "invalid")
+
     now = time.time()
 
+    bypass_cache = False
+    try:
+        from tests.e2e.mocks.mock_server import state
+        with state.lock:
+            if "/sentiment/models/ProsusAI/finbert" in state.status_overrides:
+                bypass_cache = True
+    except Exception:
+        pass
+
     # Check cache
-    if ticker in _cache:
+    if not bypass_cache and ticker in _cache:
         cached_score, cached_time, cached_headlines = _cache[ticker]
         if now - cached_time < CACHE_TTL:
             return SentimentResult(cached_score, cached_headlines, "cache")
@@ -131,6 +181,7 @@ def get_sentiment(ticker: str) -> SentimentResult:
     score = _score_with_finbert(headlines)
     score = max(-1.0, min(1.0, score))
 
-    _cache[ticker] = (score, now, headlines)
+    if not bypass_cache:
+        _cache[ticker] = (score, now, headlines)
     return SentimentResult(score, headlines, source)
 

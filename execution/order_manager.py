@@ -83,6 +83,8 @@ class AlpacaExecutor:
 
         try:
             r = requests.post(f"{self.base_url}/v2/orders", json=payload, headers=self.headers, timeout=10)
+            if r.status_code == 503:
+                raise ConnectionError(f"Alpaca API Outage: {r.status_code}")
             if r.status_code in (200, 201):
                 order = r.json()
                 order_id = order.get("id", "unknown")
@@ -90,6 +92,8 @@ class AlpacaExecutor:
                 return order_id
             else:
                 logger.error(f"Order failed: {r.status_code} {r.text}")
+        except ConnectionError as e:
+            raise e
         except Exception as e:
             logger.error(f"Order error: {e}")
         return None

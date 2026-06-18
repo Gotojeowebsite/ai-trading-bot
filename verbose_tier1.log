@@ -1,0 +1,185 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.0, pluggy-1.6.0 -- /home/umanzor/ai-trading-bot/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/umanzor/ai-trading-bot
+plugins: anyio-4.14.0, mock-3.15.1
+collecting ... collected 30 items
+
+tests/e2e/test_tier1_feature.py::test_scan_happy_path PASSED             [  3%]
+tests/e2e/test_tier1_feature.py::test_scan_yfinance_fallback PASSED      [  6%]
+tests/e2e/test_tier1_feature.py::test_scan_indicators_non_empty PASSED   [ 10%]
+tests/e2e/test_tier1_feature.py::test_scan_schedule PASSED               [ 13%]
+tests/e2e/test_tier1_feature.py::test_scan_output_format PASSED          [ 16%]
+tests/e2e/test_tier1_feature.py::test_sentiment_happy_path PASSED        [ 20%]
+tests/e2e/test_tier1_feature.py::test_sentiment_score_range PASSED       [ 23%]
+tests/e2e/test_tier1_feature.py::test_sentiment_empty_news PASSED        [ 26%]
+tests/e2e/test_tier1_feature.py::test_sentiment_invalid_ticker PASSED    [ 30%]
+tests/e2e/test_tier1_feature.py::test_sentiment_cache PASSED             [ 33%]
+tests/e2e/test_tier1_feature.py::test_politician_happy_path PASSED       [ 36%]
+tests/e2e/test_tier1_feature.py::test_politician_scoring_weight PASSED   [ 40%]
+tests/e2e/test_tier1_feature.py::test_politician_blended_signal PASSED   [ 43%]
+tests/e2e/test_tier1_feature.py::test_politician_corrupt_data FAILED     [ 46%]
+tests/e2e/test_tier1_feature.py::test_politician_no_recent_trades PASSED [ 50%]
+tests/e2e/test_tier1_feature.py::test_llm_happy_path PASSED              [ 53%]
+tests/e2e/test_tier1_feature.py::test_llm_tier1_screening FAILED         [ 56%]
+tests/e2e/test_tier1_feature.py::test_llm_tier2_json_schema PASSED       [ 60%]
+tests/e2e/test_tier1_feature.py::test_llm_fallback_tier1_fail PASSED     [ 63%]
+tests/e2e/test_tier1_feature.py::test_llm_fallback_tier2_fail PASSED     [ 66%]
+tests/e2e/test_tier1_feature.py::test_exec_bracket_order PASSED          [ 70%]
+tests/e2e/test_tier1_feature.py::test_exec_circuit_breaker PASSED        [ 73%]
+tests/e2e/test_tier1_feature.py::test_exec_pre_close_liquidation PASSED  [ 76%]
+tests/e2e/test_tier1_feature.py::test_exec_watchdog_restart PASSED       [ 80%]
+tests/e2e/test_tier1_feature.py::test_exec_position_sizing PASSED        [ 83%]
+tests/e2e/test_tier1_feature.py::test_dash_rest_portfolio FAILED         [ 86%]
+tests/e2e/test_tier1_feature.py::test_dash_rest_trades PASSED            [ 90%]
+tests/e2e/test_tier1_feature.py::test_dash_websocket_updates FAILED      [ 93%]
+tests/e2e/test_tier1_feature.py::test_dash_glassmorphism_static PASSED   [ 96%]
+tests/e2e/test_tier1_feature.py::test_dash_settings_update SKIPPED (...) [100%]
+
+=================================== FAILURES ===================================
+_________________________ test_politician_corrupt_data _________________________
+
+    def test_politician_corrupt_data():
+        """14. Handles malformed congressional disclosure inputs gracefully."""
+        with state.lock:
+            state.status_overrides["/congress"] = 500
+        res = get_politician_signals("AAPL")
+>       assert res["signal_score"] == 0.0
+E       assert 0.95 == 0.0
+
+tests/e2e/test_tier1_feature.py:193: AssertionError
+___________________________ test_llm_tier1_screening ___________________________
+
+run_cli = <function run_cli.<locals>._run at 0x737797f50f40>
+
+    def test_llm_tier1_screening(run_cli):
+        """17. Low-performing tickers are filtered out during Tier 1 screen."""
+        with state.lock:
+            # Mock Gemini (Tier 1) to return low score by forcing 500 -> 0.0 fallback
+            state.status_overrides["/gemini/v1beta/models/gemini-2.0-flash:generateContent"] = 500
+    
+        run_cli(["--mode", "scan"])
+        run_cli(["--mode", "trade"])
+    
+        # Ensure no trade was created for AAPL
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("SELECT count(*) FROM trades WHERE ticker='AAPL'")
+        count = cursor.fetchone()[0]
+>       assert count == 0
+E       assert 1 == 0
+
+tests/e2e/test_tier1_feature.py:229: AssertionError
+___________________________ test_dash_rest_portfolio ___________________________
+
+dashboard_server = 'http://localhost:8000'
+
+    def test_dash_rest_portfolio(dashboard_server):
+        """26. API returns accurate balance, cash, and position stats."""
+        r = requests.get(f"{dashboard_server}/api/portfolio")
+        assert r.status_code == 200
+        data = r.json()
+>       assert "cash" in data
+E       AssertionError: assert 'cash' in {'account': {'cash': '100000.0', 'equity': '100000.0', 'buying_power': '400000.0'}, 'positions': []}
+
+tests/e2e/test_tier1_feature.py:323: AssertionError
+_________________________ test_dash_websocket_updates __________________________
+
+dashboard_server = 'http://localhost:8000'
+
+    def test_dash_websocket_updates(dashboard_server):
+        """28. WebSocket pushes updates on order placement and execution."""
+        # WebSocket path
+        ws = websocket.create_connection(f"ws://localhost:8000/ws/updates", timeout=10)
+>       resp = ws.recv()
+               ^^^^^^^^^
+
+tests/e2e/test_tier1_feature.py:342: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/websocket/_core.py:395: in recv
+    opcode, data = self.recv_data()
+                   ^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/websocket/_core.py:423: in recv_data
+    opcode, frame = self.recv_data_frame(control_frame)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/websocket/_core.py:444: in recv_data_frame
+    frame = self.recv_frame()
+            ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/websocket/_core.py:485: in recv_frame
+    return self.frame_buffer.recv_frame()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/websocket/_abnf.py:375: in recv_frame
+    self.recv_header()
+.venv/lib/python3.12/site-packages/websocket/_abnf.py:329: in recv_header
+    header = self.recv_strict(2)
+             ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/websocket/_abnf.py:418: in recv_strict
+    bytes_ = self.recv(min(16384, shortage))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/websocket/_core.py:581: in _recv
+    return recv(self.sock, bufsize)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+sock = <socket.socket [closed] fd=-1, family=2, type=1, proto=6>, bufsize = 2
+
+    def recv(sock: socket.socket, bufsize: int) -> bytes:
+        if not sock:
+            raise WebSocketConnectionClosedException("socket is already closed.")
+    
+        def _recv():
+            try:
+                return sock.recv(bufsize)
+            except SSLWantReadError:
+                # Don't return None implicitly - fall through to retry logic
+                pass
+            except socket.error as exc:
+                error_code = extract_error_code(exc)
+                if error_code not in [errno.EAGAIN, errno.EWOULDBLOCK]:
+                    raise
+                # Don't return None implicitly - fall through to retry logic
+    
+            # Retry logic using selector for both SSLWantReadError and EAGAIN/EWOULDBLOCK
+            sel = selectors.DefaultSelector()
+            sel.register(sock, selectors.EVENT_READ)
+    
+            r = sel.select(sock.gettimeout())
+            sel.close()
+    
+            if r:
+                return sock.recv(bufsize)
+            else:
+                # Selector timeout should raise WebSocketTimeoutException
+                # not return None which gets misclassified as connection closed
+                raise WebSocketTimeoutException("Connection timed out waiting for data")
+    
+        try:
+            if sock.gettimeout() == 0:
+                bytes_ = sock.recv(bufsize)
+            else:
+                bytes_ = _recv()
+        except TimeoutError:
+            raise WebSocketTimeoutException("Connection timed out")
+        except socket.timeout as e:
+            message = extract_err_message(e)
+            raise WebSocketTimeoutException(message)
+        except SSLError as e:
+            message = extract_err_message(e)
+            if isinstance(message, str) and "timed out" in message:
+                raise WebSocketTimeoutException(message)
+            else:
+                raise
+    
+        if bytes_ is None:
+            raise WebSocketConnectionClosedException("Connection to remote host was lost.")
+        if not bytes_:
+>           raise WebSocketConnectionClosedException("Connection to remote host was lost.")
+E           websocket._exceptions.WebSocketConnectionClosedException: Connection to remote host was lost.
+
+.venv/lib/python3.12/site-packages/websocket/_socket.py:143: WebSocketConnectionClosedException
+=========================== short test summary info ============================
+FAILED tests/e2e/test_tier1_feature.py::test_politician_corrupt_data - assert...
+FAILED tests/e2e/test_tier1_feature.py::test_llm_tier1_screening - assert 1 == 0
+FAILED tests/e2e/test_tier1_feature.py::test_dash_rest_portfolio - AssertionE...
+FAILED tests/e2e/test_tier1_feature.py::test_dash_websocket_updates - websock...
+=================== 4 failed, 25 passed, 1 skipped in 37.47s ===================

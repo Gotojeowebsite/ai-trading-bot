@@ -1,12 +1,12 @@
-# BRIEFING — 2026-06-18T06:24:17Z
+# BRIEFING — 2026-06-18T15:18:24Z
 
 ## Mission
 Record user request, monitor project progress, spawn/manage the Project Orchestrator, and audit project completion.
 
 ## 🔒 My Identity
 - Archetype: sentinel
-- Working directory: /workspaces/ai-trading-bot/.agents/sentinel
-- Orchestrator: 73934d02-2f82-4f11-ad27-87ed25c64fa6
+- Working directory: /home/umanzor/ai-trading-bot/.agents/sentinel
+- Orchestrator: c705014f-7ec1-4918-a6ef-93563cef3675
 - Victory Auditor: TBD
 
 ## 🔒 Key Constraints
@@ -16,12 +16,12 @@ Record user request, monitor project progress, spawn/manage the Project Orchestr
 - Do not write code or analyze problems
 
 ## User Context
-- **Last user request**: Build a production-ready, fully autonomous AI day trading bot ("APEX AI") with deep morning research, dual broker support, premium dashboard, cross-platform distribution, and comprehensive testing.
+- **Last user request**: Continue building the APEX AI trading bot: Morning Deep Research, Bloomberg Terminal-grade dashboard, Interactive Brokers support, cross-platform distribution, and comprehensive testing.
 - **Pending clarifications**: none
 - **Delivered results**: none
 
 ## Project Status
-- **Phase**: not started
+- **Phase**: in progress
 
 ## Victory Audit Status
 - **Triggered**: no
@@ -29,7 +29,8 @@ Record user request, monitor project progress, spawn/manage the Project Orchestr
 - **Retry count**: 0
 
 ## Artifact Index
-- /workspaces/ai-trading-bot/ORIGINAL_REQUEST.md — Verbatim record of initial user request
-- /workspaces/ai-trading-bot/.agents/sentinel/BRIEFING.md — Sentinel persistent memory and index
-- cd7f25c4-6c77-4c9b-9c18-231da0d400c2/task-17 — Cron 1: Progress Reporting (*/8 * * * *)
-- cd7f25c4-6c77-4c9b-9c18-231da0d400c2/task-19 — Cron 2: Liveness Check (*/10 * * * *)
+- /home/umanzor/ai-trading-bot/ORIGINAL_REQUEST.md — Verbatim record of user requests
+- /home/umanzor/ai-trading-bot/.agents/sentinel/BRIEFING.md — Sentinel persistent memory and index
+- f60d8d0c-a377-4750-866c-3d8a655105ba/task-31 — Cron 1: Progress Reporting (*/8 * * * *)
+- f60d8d0c-a377-4750-866c-3d8a655105ba/task-33 — Cron 2: Liveness Check (*/10 * * * *)
+

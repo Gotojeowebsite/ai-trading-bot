@@ -1,0 +1,11 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.0, pluggy-1.6.0
+rootdir: /home/umanzor/ai-trading-bot
+plugins: anyio-4.14.0, mock-3.15.1
+collected 112 items
+
+tests/e2e/test_e2e_flow.py .                                             [  0%]
+tests/e2e/test_r1_r5_e2e.py ..s...ssss.sss..                             [ 15%]
+tests/e2e/test_tier1_feature.py .......FF....F..F........F.F.s           [ 41%]
+tests/e2e/test_tier2_boundary.py ......F.FF.F..F...........sF..          [ 68%]
+tests/e2e/test_tier3_combinatorial.py F...

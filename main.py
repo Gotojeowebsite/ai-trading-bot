@@ -291,12 +291,14 @@ def mode_dashboard():
             self.end_headers()
         def do_GET(self):
             if not self.check_auth(): return
-            if self.path == "/ws/updates":
+            if self.path in ("/ws/updates", "/ws"):
                 key = self.headers.get("Sec-WebSocket-Key")
                 if key:
                     import hashlib, base64
                     accept_key = base64.b64encode(hashlib.sha1((key.strip() + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").encode()).digest()).decode()
                     self.wfile.write(f"HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: {accept_key}\r\n\r\n".encode())
+                    init_msg = b"connected"
+                    self.connection.sendall(bytearray([0x81, len(init_msg)]) + init_msg)
                     self.connection.settimeout(5.0)
                     try:
                         while True:
@@ -340,10 +342,18 @@ def mode_dashboard():
                 import requests as req
                 api_url = os.environ.get("ALPACA_API_BASE_URL", "http://localhost:8001/alpaca")
                 try:
-                    r = req.get(f"{api_url}/v2/account", timeout=5)
+                    r_acct = req.get(f"{api_url}/v2/account", timeout=5)
+                    acct_data = r_acct.json()
+                    try:
+                        r_pos = req.get(f"{api_url}/v2/positions", timeout=5)
+                        positions_data = r_pos.json() if r_pos.status_code == 200 else []
+                    except Exception:
+                        positions_data = []
+                    res_data = {"account": acct_data, "positions": positions_data}
                     self.send_response(200); self.send_header("Content-Type","application/json"); self.end_headers()
-                    self.wfile.write(r.content)
-                except: self.send_response(500); self.end_headers()
+                    self.wfile.write(json.dumps(res_data).encode())
+                except Exception:
+                    self.send_response(500); self.end_headers()
             elif self.path in ("/", "/index.html"):
                 self.send_response(200); self.send_header("Content-Type","text/html"); self.end_headers()
                 self.wfile.write(b"<html><head><title>Dashboard</title></head><body><h1>Trading Bot Dashboard</h1></body></html>")

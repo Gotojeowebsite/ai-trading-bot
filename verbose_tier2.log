@@ -1,0 +1,1027 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.0, pluggy-1.6.0 -- /home/umanzor/ai-trading-bot/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/umanzor/ai-trading-bot
+plugins: anyio-4.14.0, mock-3.15.1
+collecting ... collected 30 items
+
+tests/e2e/test_tier2_boundary.py::test_scan_zero_volume ERROR            [  3%]
+tests/e2e/test_tier2_boundary.py::test_scan_extreme_prices ERROR         [  6%]
+tests/e2e/test_tier2_boundary.py::test_scan_incomplete_ohlcv ERROR       [ 10%]
+tests/e2e/test_tier2_boundary.py::test_scan_api_timeout ERROR            [ 13%]
+tests/e2e/test_tier2_boundary.py::test_scan_rvol_division_by_zero ERROR  [ 16%]
+tests/e2e/test_tier2_boundary.py::test_sentiment_extremely_long_news ERROR [ 20%]
+tests/e2e/test_tier2_boundary.py::test_sentiment_api_down ERROR          [ 23%]
+tests/e2e/test_tier2_boundary.py::test_sentiment_special_chars ERROR     [ 26%]
+tests/e2e/test_tier2_boundary.py::test_sentiment_rate_limiting ERROR     [ 30%]
+tests/e2e/test_tier2_boundary.py::test_sentiment_contradictory_headlines ERROR [ 33%]
+tests/e2e/test_tier2_boundary.py::test_politician_disclosure_extreme_size ERROR [ 36%]
+tests/e2e/test_tier2_boundary.py::test_politician_future_disclosed_date ERROR [ 40%]
+tests/e2e/test_tier2_boundary.py::test_politician_duplicate_trades ERROR [ 43%]
+tests/e2e/test_tier2_boundary.py::test_politician_missing_fields ERROR   [ 46%]
+tests/e2e/test_tier2_boundary.py::test_politician_historic_trades ERROR  [ 50%]
+tests/e2e/test_tier2_boundary.py::test_llm_malformed_json_response ERROR [ 53%]
+tests/e2e/test_tier2_boundary.py::test_llm_hallucinated_action ERROR     [ 56%]
+tests/e2e/test_tier2_boundary.py::test_llm_stop_loss_out_of_bounds ERROR [ 60%]
+tests/e2e/test_tier2_boundary.py::test_llm_empty_reasoning ERROR         [ 63%]
+tests/e2e/test_tier2_boundary.py::test_llm_context_window_overflow ERROR [ 66%]
+tests/e2e/test_tier2_boundary.py::test_exec_insufficient_buying_power ERROR [ 70%]
+tests/e2e/test_tier2_boundary.py::test_exec_order_fill_delay ERROR       [ 73%]
+tests/e2e/test_tier2_boundary.py::test_exec_circuit_breaker_exact_limit ERROR [ 76%]
+tests/e2e/test_tier2_boundary.py::test_exec_partial_fills ERROR          [ 80%]
+tests/e2e/test_tier2_boundary.py::test_exec_alpaca_disconnected_ws ERROR [ 83%]
+tests/e2e/test_tier2_boundary.py::test_dash_websocket_flood ERROR        [ 86%]
+tests/e2e/test_tier2_boundary.py::test_dash_unauthorized_access SKIPPED  [ 90%]
+tests/e2e/test_tier2_boundary.py::test_dash_empty_db_state ERROR         [ 93%]
+tests/e2e/test_tier2_boundary.py::test_dash_concurrent_connections ERROR [ 96%]
+tests/e2e/test_tier2_boundary.py::test_dash_cors_config ERROR            [100%]
+
+==================================== ERRORS ====================================
+___________________ ERROR at setup of test_scan_zero_volume ____________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+__________________ ERROR at setup of test_scan_extreme_prices __________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+_________________ ERROR at setup of test_scan_incomplete_ohlcv _________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+___________________ ERROR at setup of test_scan_api_timeout ____________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+______________ ERROR at setup of test_scan_rvol_division_by_zero _______________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+_____________ ERROR at setup of test_sentiment_extremely_long_news _____________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+__________________ ERROR at setup of test_sentiment_api_down ___________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+________________ ERROR at setup of test_sentiment_special_chars ________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+________________ ERROR at setup of test_sentiment_rate_limiting ________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+___________ ERROR at setup of test_sentiment_contradictory_headlines ___________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+__________ ERROR at setup of test_politician_disclosure_extreme_size ___________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+___________ ERROR at setup of test_politician_future_disclosed_date ____________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+______________ ERROR at setup of test_politician_duplicate_trades ______________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+_______________ ERROR at setup of test_politician_missing_fields _______________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+______________ ERROR at setup of test_politician_historic_trades _______________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+______________ ERROR at setup of test_llm_malformed_json_response ______________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+________________ ERROR at setup of test_llm_hallucinated_action ________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+______________ ERROR at setup of test_llm_stop_loss_out_of_bounds ______________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+__________________ ERROR at setup of test_llm_empty_reasoning __________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+______________ ERROR at setup of test_llm_context_window_overflow ______________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+____________ ERROR at setup of test_exec_insufficient_buying_power _____________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+_________________ ERROR at setup of test_exec_order_fill_delay _________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+___________ ERROR at setup of test_exec_circuit_breaker_exact_limit ____________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+__________________ ERROR at setup of test_exec_partial_fills ___________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+______________ ERROR at setup of test_exec_alpaca_disconnected_ws ______________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+_________________ ERROR at setup of test_dash_websocket_flood __________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+__________________ ERROR at setup of test_dash_empty_db_state __________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+______________ ERROR at setup of test_dash_concurrent_connections ______________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+___________________ ERROR at setup of test_dash_cors_config ____________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def mock_servers():
+        """Starts the E2E HTTP, WebSocket, and IB socket mock servers in the background."""
+        # Start HTTP Server
+>       http_server = HTTPServer(("127.0.0.1", 8001), MockHTTPRequestHandler)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/e2e/conftest.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/lib/python3.12/http/server.py:136: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.server.HTTPServer object at 0x73981ca128a0>
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+>       self.socket.bind(self.server_address)
+E       OSError: [Errno 98] Address already in use
+
+/usr/lib/python3.12/socketserver.py:473: OSError
+=========================== short test summary info ============================
+ERROR tests/e2e/test_tier2_boundary.py::test_scan_zero_volume - OSError: [Err...
+ERROR tests/e2e/test_tier2_boundary.py::test_scan_extreme_prices - OSError: [...
+ERROR tests/e2e/test_tier2_boundary.py::test_scan_incomplete_ohlcv - OSError:...
+ERROR tests/e2e/test_tier2_boundary.py::test_scan_api_timeout - OSError: [Err...
+ERROR tests/e2e/test_tier2_boundary.py::test_scan_rvol_division_by_zero - OSE...
+ERROR tests/e2e/test_tier2_boundary.py::test_sentiment_extremely_long_news - ...
+ERROR tests/e2e/test_tier2_boundary.py::test_sentiment_api_down - OSError: [E...
+ERROR tests/e2e/test_tier2_boundary.py::test_sentiment_special_chars - OSErro...
+ERROR tests/e2e/test_tier2_boundary.py::test_sentiment_rate_limiting - OSErro...
+ERROR tests/e2e/test_tier2_boundary.py::test_sentiment_contradictory_headlines
+ERROR tests/e2e/test_tier2_boundary.py::test_politician_disclosure_extreme_size
+ERROR tests/e2e/test_tier2_boundary.py::test_politician_future_disclosed_date
+ERROR tests/e2e/test_tier2_boundary.py::test_politician_duplicate_trades - OS...
+ERROR tests/e2e/test_tier2_boundary.py::test_politician_missing_fields - OSEr...
+ERROR tests/e2e/test_tier2_boundary.py::test_politician_historic_trades - OSE...
+ERROR tests/e2e/test_tier2_boundary.py::test_llm_malformed_json_response - OS...
+ERROR tests/e2e/test_tier2_boundary.py::test_llm_hallucinated_action - OSErro...
+ERROR tests/e2e/test_tier2_boundary.py::test_llm_stop_loss_out_of_bounds - OS...
+ERROR tests/e2e/test_tier2_boundary.py::test_llm_empty_reasoning - OSError: [...
+ERROR tests/e2e/test_tier2_boundary.py::test_llm_context_window_overflow - OS...
+ERROR tests/e2e/test_tier2_boundary.py::test_exec_insufficient_buying_power
+ERROR tests/e2e/test_tier2_boundary.py::test_exec_order_fill_delay - OSError:...
+ERROR tests/e2e/test_tier2_boundary.py::test_exec_circuit_breaker_exact_limit
+ERROR tests/e2e/test_tier2_boundary.py::test_exec_partial_fills - OSError: [E...
+ERROR tests/e2e/test_tier2_boundary.py::test_exec_alpaca_disconnected_ws - OS...
+ERROR tests/e2e/test_tier2_boundary.py::test_dash_websocket_flood - OSError: ...
+ERROR tests/e2e/test_tier2_boundary.py::test_dash_empty_db_state - OSError: [...
+ERROR tests/e2e/test_tier2_boundary.py::test_dash_concurrent_connections - OS...
+ERROR tests/e2e/test_tier2_boundary.py::test_dash_cors_config - OSError: [Err...
+======================== 1 skipped, 29 errors in 1.17s =========================

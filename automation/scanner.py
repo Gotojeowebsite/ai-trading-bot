@@ -5,6 +5,7 @@ import re
 from datetime import datetime
 from typing import List, Dict, Optional
 import pytz
+import pandas as pd
 import yfinance as yf
 
 logger = logging.getLogger(__name__)
@@ -67,8 +68,7 @@ class PreMarketScanner:
                     'news_catalyst': 'No historical data'
                 }
                 
-            if df.index.tzinfo is None:
-                df.index = df.index.tz_localize('UTC')
+            df.index = pd.to_datetime(df.index, utc=True)
             df_est = df.tz_convert('US/Eastern')
             
             scan_date = current_time_est.date()

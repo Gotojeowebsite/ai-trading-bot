@@ -42,32 +42,41 @@ Orchestrate the implementation and verification of the APEX AI trading bot featu
 - Hard veto on forensic audit failure.
 
 ## Current Parent
-- Conversation ID: cd7f25c4-6c77-4c9b-9c18-231da0d400c2
-- Updated: 2026-06-18T06:24:39Z
+- Conversation ID: a2d024f2-bb87-4f72-ada6-fb2f82077e43
+- Updated: 2026-06-18T14:53:30Z
 
 ## Key Decisions Made
-- Starting a new orchestrator run for the new requirements (R1-R5).
-- Spawned initial codebase explorer to baseline the current codebase.
+- Resuming project execution in a new session.
+- Verified that M1 changes are present in the codebase.
+- Spawning a test runner worker to check current test status.
 
 ## Team Roster
 | Agent | Type | Work Item | Status | Conv ID |
 |-------|------|-----------|--------|---------|
 | explorer_init_1 | teamwork_preview_explorer | Baseline codebase analysis | completed | 97053bfe-d6e0-45d1-a586-04c5f029fa4f |
-| sub_orch_e2e | self | E2E Testing Track | in-progress | 1eb05cf6-6a57-4414-9b91-702becd89f74 |
-| sub_orch_m1 | self | M1 (API Mismatch & Cleanup) | in-progress | 810252a6-97bd-4ecf-9e29-13aae8c3ffe4 |
+| sub_orch_e2e | self | E2E Testing Track (Old) | orphaned | 1eb05cf6-6a57-4414-9b91-702becd89f74 |
+| sub_orch_m1 | self | M1 (API Mismatch & Cleanup) (Old) | orphaned | 810252a6-97bd-4ecf-9e29-13aae8c3ffe4 |
+| worker_m1_test_runner | teamwork_preview_worker | Run pytest suite to baseline M1 | failed | 88bb02d1-a955-4fa4-9b05-16f8bafa3bb7 |
+| worker_m1_test_runner_gen2 | teamwork_preview_worker | Investigate and run tests | cancelled | 413427a0-edd4-4f4f-ab01-6904a6a7b704 |
+| worker_m1_fixer | teamwork_preview_worker | Implement fixes for 18 tests | cancelled | 572e8b40-d834-47a4-bd41-6a68a6ffac45 |
+| worker_test_run_gen3 | teamwork_preview_worker | Run pytest suite | completed | d1a2b97f-b61d-46ea-8ba4-10621f195613 |
+| sub_orch_m1_gen2 | self | Milestone 1 fixes | in-progress | 609dac2c-7537-4955-903c-7f07a97b9cc0 |
+| sub_orch_e2e_gen2 | self | E2E Testing Track | in-progress | f4ffccf6-0f2b-419d-8fac-89f8cf37cdce |
 
 ## Succession Status
-- Succession required: yes
-- Spawn count: 3 / 16
-- Pending subagents: 1eb05cf6-6a57-4414-9b91-702becd89f74, 810252a6-97bd-4ecf-9e29-13aae8c3ffe4
+- Succession required: no
+- Spawn count: 8 / 16
+- Pending subagents: 609dac2c-7537-4955-903c-7f07a97b9cc0, f4ffccf6-0f2b-419d-8fac-89f8cf37cdce
 - Predecessor: none
 - Successor: not yet spawned
 
 ## Active Timers
-- Heartbeat cron: task-31
+- Heartbeat cron: task-216
 - Safety timer: none
+- On succession: kill all timers before spawning successor
+- On context truncation: run `manage_task(Action="list")` — re-create if missing
 
 ## Artifact Index
-- /workspaces/ai-trading-bot/.agents/orchestrator/PROJECT.md — Global project architecture, milestones, interfaces, and code layout
-- /workspaces/ai-trading-bot/.agents/orchestrator/plan.md — Verification plan
-- /workspaces/ai-trading-bot/.agents/orchestrator/progress.md — Heartbeat and progress checklist
+- /home/umanzor/ai-trading-bot/.agents/orchestrator/PROJECT.md — Global project architecture, milestones, interfaces, and code layout
+- /home/umanzor/ai-trading-bot/.agents/orchestrator/plan.md — Verification plan
+- /home/umanzor/ai-trading-bot/.agents/orchestrator/progress.md — Heartbeat and progress checklist

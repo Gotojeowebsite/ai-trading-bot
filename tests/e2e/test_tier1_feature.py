@@ -217,6 +217,7 @@ def test_llm_tier1_screening(run_cli):
     with state.lock:
         # Mock Gemini (Tier 1) to return low score by forcing 500 -> 0.0 fallback
         state.status_overrides["/gemini/v1beta/models/gemini-2.0-flash:generateContent"] = 500
+        state.status_overrides["/congress"] = 500
     
     run_cli(["--mode", "scan"])
     run_cli(["--mode", "trade"])
@@ -320,8 +321,9 @@ def test_dash_rest_portfolio(dashboard_server):
     r = requests.get(f"{dashboard_server}/api/portfolio")
     assert r.status_code == 200
     data = r.json()
-    assert "cash" in data
-    assert "equity" in data
+    assert "account" in data
+    assert "cash" in data["account"]
+    assert "equity" in data["account"]
 
 
 def test_dash_rest_trades(run_cli, dashboard_server):
