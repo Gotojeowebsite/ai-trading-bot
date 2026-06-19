@@ -88,10 +88,10 @@ The APEX AI Trading Bot uses a **Tiered Decision Engine** to analyze the market 
 
 APEX AI uses a multi-agent, tiered approach. You can mix and match models in `config/config.yaml` to optimize for speed, intelligence, and cost. Here are the recommended models for each specific task:
 
-### 1. Pre-market Research Engine (Deep Analysis)
-**Goal:** Ingest heavy financial data, summarize macro conditions, and output structured JSON.
-* **🥇 Top Pick:** `o3-mini` (OpenAI) or `gemini-2.0-flash-thinking` (Google). These reasoning models are perfect for multi-step contextual analysis of pre-market news and generating accurate structured outputs.
-* **🥈 Alternative:** `claude-3-5-sonnet-20241022` (Anthropic). Exceptional at nuance and financial text summarization.
+### 1. Pre-market Research Engine (Deep Thinking & Extended Reasoning)
+**Goal:** Ingest heavy financial data, conduct deep multi-step reasoning to establish macro trends, and output structured JSON to inform the bot's trading parameters for the day.
+* **🥇 Top Pick:** `o1` / `o3-mini` (OpenAI with "high" reasoning effort) or `claude-3-7-sonnet` (Anthropic with extended thinking enabled). These models are designed specifically to "think" deeply before answering, making them perfect for analyzing complex pre-market news, catalysts, and sector trends.
+* **🥈 Alternative:** `gemini-2.0-flash-thinking` (Google). Excellent reasoning capabilities with a very large context window for pulling in historical macro reports.
 
 ### 2. Tier 1 LLM Engine (High-Frequency Screening)
 **Goal:** Extremely low latency, high throughput, and cost efficiency. This model runs continuously on a loop, filtering out the noise.
