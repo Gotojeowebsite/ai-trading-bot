@@ -6,52 +6,81 @@ A fully autonomous AI-powered day trading bot with a **tiered LLM brain** (Gemin
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Installation & Setup Guide
 
-### 1. Clone & Install
+### 1. Prerequisites
+Ensure you have the following installed on your system:
+- **Python 3.10+** (Recommended: 3.11 or 3.12)
+- **Git**
 
+### 2. Clone the Repository
+Clone the project to your local machine:
 ```bash
+git clone https://github.com/yourusername/ai-trading-bot.git
 cd ai-trading-bot
+```
+
+### 3. Install Dependencies
+It is highly recommended to use a virtual environment to avoid conflicts:
+```bash
+# Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows use: .venv\Scripts\activate
+
+# Install the required packages
 pip install -r requirements.txt
 ```
 
-### 2. Configure API Keys
+### 4. Configuration & API Keys
+The bot requires API keys to function. The easiest way to configure everything is using the built-in [Setup Wizard](setup_wizard/gui_wizard.py):
 
-Copy the example env file and add your keys:
+```bash
+python main.py setup
+```
+*(This launches an interactive GUI or CLI wizard that will prompt you for your keys and save them securely to `.env` and `config/config.yaml`.)*
 
+Alternatively, you can manually copy `.env.example` to `.env` and fill in your keys:
 ```bash
 cp .env.example .env
 ```
-
-Edit `.env` with your API keys:
 
 | Key | Where to get it | Required? |
 |-----|----------------|-----------|
 | `GEMINI_API_KEY` | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) | ✅ Yes (Tier 1 LLM) |
 | `OPENAI_API_KEY` | [platform.openai.com](https://platform.openai.com/api-keys) | ✅ Yes (Tier 2 LLM) |
-| `ALPACA_API_KEY` + `ALPACA_SECRET_KEY` | [alpaca.markets](https://alpaca.markets) | ✅ Yes (broker) |
-| `NEWSAPI_KEY` | [newsapi.org](https://newsapi.org) | Optional (news) |
+| `ALPACA_API_KEY` & `SECRET` | [alpaca.markets](https://alpaca.markets) | ✅ Yes (if using Alpaca) |
+| `IB_ACCOUNT_ID` | [interactivebrokers.com](https://www.interactivebrokers.com/) | ✅ Yes (if using IBKR) |
+| `NEWSAPI_KEY` | [newsapi.org](https://newsapi.org) | Optional (news sentiment) |
 | `QUIVER_QUANT_API_KEY` | [quiverquant.com](https://www.quiverquant.com) | Optional (politician data) |
-| `TELEGRAM_BOT_TOKEN` | [@BotFather on Telegram](https://t.me/botfather) | Optional (alerts) |
 
-### 3. Edit Config (Optional)
+### 5. Running the Bot
 
-Edit `config/config.yaml` to customize:
-- **Watchlist** — which stocks to trade
-- **Risk profile** — stop-loss %, take-profit %, max position size
-- **LLM providers** — switch between Gemini/OpenAI/Anthropic
+The bot has two primary components: the autonomous trading loop and the web dashboard. Open two terminal windows and run:
 
-### 4. Run the Bot
-
+**Terminal 1 (Trading Engine):**
 ```bash
-# Start the trading bot (runs fully automated)
-python -m automation.trading_loop
-
-# In another terminal, start the dashboard
-python -m dashboard.app
+python main.py bot
 ```
+*(This starts the autonomous [Trading Loop](automation/trading_loop.py) which scans the market, evaluates signals, and executes trades.)*
 
-Then open **http://localhost:8080** in your browser.
+**Terminal 2 (Dashboard):**
+```bash
+python main.py dashboard
+```
+*(This starts the [FastAPI Dashboard Backend](dashboard/app.py). Open **http://localhost:8080** in your browser to view the live interface.)*
+
+---
+
+## 🧠 How It Works
+
+The APEX AI Trading Bot uses a **Tiered Decision Engine** to analyze the market and execute trades autonomously:
+
+1. **Pre-market Research**: Before the market opens, the [Research Engine](engine/research_engine.py) uses an LLM (OpenAI/Anthropic) to analyze macro trends, VIX, and sector outlooks, generating a baseline `macro_context` score.
+2. **Live Data & Indicators**: The [Data Client](automation/data_client.py) streams real-time pricing for your watchlist and computes technical indicators (RSI, MACD, VWAP) via the [Indicators Module](automation/indicators.py).
+3. **Sentiment & Politician Tracking**: The bot fetches live news sentiment via FinBERT ([Finbert Client](sentiment/finbert_client.py)) and tracks US Congressional trades via the [Copy Mode Module](politician/copy_mode.py).
+4. **Tier 1 LLM Screening**: The aggregated signals are fed into a fast, cheap LLM (Gemini Flash) in the [LLM Brain](engine/llm_brain.py) for initial screening. 
+5. **Tier 2 LLM Reasoning**: If Tier 1 identifies a high-probability setup, the data is escalated to a premium LLM (GPT-4o or Claude 3.5 Sonnet) for deep reasoning and final trade conviction.
+6. **Execution & Risk Management**: If conviction is high, the [Order Manager](execution/order_manager.py) sends a bracket order (with strict stop-loss and take-profit) to Alpaca or Interactive Brokers. All positions are forcefully liquidated at 3:55 PM EST to avoid overnight risk.
 
 ---
 
@@ -92,12 +121,17 @@ ai-trading-bot/
 ├── politician/
 │   └── copy_mode.py              # 🏛️ Congressional trade tracker
 ├── execution/
-│   └── order_manager.py          # 💹 Alpaca order executor
+│   ├── order_manager.py          # 💹 Broker abstraction
+│   └── ib_executor.py            # 💹 Interactive Brokers executor
 ├── notifications/
 │   └── alerts.py                 # 📱 Telegram/email alerts
+├── setup_wizard/
+│   ├── cli_wizard.py             # 🪄 Setup wizard CLI
+│   └── gui_wizard.py             # 🪄 Setup wizard GUI
 ├── dashboard/
 │   ├── app.py                    # FastAPI backend
 │   └── index.html                # Premium web dashboard
+├── main.py                       # 🚀 Main entry point CLI
 └── requirements.txt
 ```
 
