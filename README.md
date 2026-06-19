@@ -84,6 +84,27 @@ The APEX AI Trading Bot uses a **Tiered Decision Engine** to analyze the market 
 
 ---
 
+## 🤖 LLM Recommendations by Process
+
+APEX AI uses a multi-agent, tiered approach. You can mix and match models in `config/config.yaml` to optimize for speed, intelligence, and cost. Here are the recommended models for each specific task:
+
+### 1. Pre-market Research Engine (Deep Analysis)
+**Goal:** Ingest heavy financial data, summarize macro conditions, and output structured JSON.
+* **🥇 Top Pick:** `o3-mini` (OpenAI) or `gemini-2.0-flash-thinking` (Google). These reasoning models are perfect for multi-step contextual analysis of pre-market news and generating accurate structured outputs.
+* **🥈 Alternative:** `claude-3-5-sonnet-20241022` (Anthropic). Exceptional at nuance and financial text summarization.
+
+### 2. Tier 1 LLM Engine (High-Frequency Screening)
+**Goal:** Extremely low latency, high throughput, and cost efficiency. This model runs continuously on a loop, filtering out the noise.
+* **🥇 Top Pick:** `gemini-2.0-flash` (Google). The absolute best combination of lightning-fast latency and incredibly cheap API costs, making it ideal for processing thousands of tickers a day.
+* **🥈 Alternative:** `gpt-4o-mini` (OpenAI) or `claude-3-5-haiku` (Anthropic). Fast and cheap, suitable for initial binary screening (Trade / Pass).
+
+### 3. Tier 2 LLM Engine (Final Execution Conviction)
+**Goal:** State-of-the-art intelligence, low hallucination, and complex financial logic. Runs only when Tier 1 approves a trade setup, so cost and latency are less critical here.
+* **🥇 Top Pick:** `gpt-4o` (OpenAI) or `claude-3-5-sonnet-20241022` (Anthropic). These flagship models provide the highest reasoning capabilities and are excellent at respecting strict risk-management guardrails before executing capital.
+* **🥈 Alternative:** `gemini-1.5-pro` (Google). Extremely strong reasoning with a massive context window if you inject large amounts of historical price action context.
+
+---
+
 ## 🏗 Architecture
 
 ```
