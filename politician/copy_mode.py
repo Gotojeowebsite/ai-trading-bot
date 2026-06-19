@@ -145,16 +145,13 @@ def _compute_signal(trades: List[dict], recency_window: int = 45) -> Dict:
         try:
             has_recency = "RecencyScore" in trade
             
-            if not has_recency:
-                date_str = trade.get("TransactionDate", "")
-                trade_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+            date_str = trade.get("TransactionDate", "")
+            trade_date = datetime.strptime(date_str, "%Y-%m-%d").date()
 
-                # Skip future dates or too old
-                days_ago = (today - trade_date).days
-                if days_ago < 0 or days_ago > recency_window:
-                    continue
-            else:
-                date_str = trade.get("TransactionDate", "")
+            # Skip future dates or too old
+            days_ago = (today - trade_date).days
+            if days_ago < 0 or days_ago > recency_window:
+                continue
 
             name = trade.get("Representative", "Unknown")
             pol_weight = POLITICIAN_ALPHA.get(name, 0.50)

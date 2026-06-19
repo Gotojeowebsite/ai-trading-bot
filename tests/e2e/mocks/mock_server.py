@@ -16,6 +16,7 @@ class MockServerState:
         self.account_equity = 100000.0
         self.status_overrides = {}  # Map path -> HTTP status code (e.g., {"/alpaca/v2/orders": 429})
         self.response_delays = {}    # Map path -> delay in seconds
+        self.sentiment_overrides = {} # Map ticker -> score (e.g., {"AAPL": -0.80})
         self.alpaca_ws_clients = []
 
 # Global shared state
@@ -141,9 +142,12 @@ class MockHTTPRequestHandler(BaseHTTPRequestHandler):
                         state.status_overrides.update(data["status_overrides"])
                     if "response_delays" in data:
                         state.response_delays.update(data["response_delays"])
+                    if "sentiment_overrides" in data:
+                        state.sentiment_overrides.update(data["sentiment_overrides"])
                     if "reset" in data and data["reset"]:
                         state.status_overrides.clear()
                         state.response_delays.clear()
+                        state.sentiment_overrides.clear()
                         state.orders.clear()
                         state.positions.clear()
                         state.account_cash = 100000.0
@@ -361,11 +365,46 @@ class MockHTTPRequestHandler(BaseHTTPRequestHandler):
 
         # FinBERT Sentiment Mock
         if "finbert" in self.path:
-            response = [[
-                {"label": "positive", "score": 0.90},
-                {"label": "negative", "score": 0.05},
-                {"label": "neutral", "score": 0.05}
-            ]]
+            try:
+                data = json.loads(post_data)
+                inputs = data.get("inputs", [])
+            except Exception:
+                inputs = []
+            if isinstance(inputs, str):
+                inputs = [inputs]
+            
+            response = []
+            for headline in inputs:
+                matched_score = None
+                with state.lock:
+                    for ticker, override_score in state.sentiment_overrides.items():
+                        if ticker in headline:
+                            matched_score = override_score
+                            break
+                if matched_score is not None:
+                    if matched_score >= 0:
+                        pos_val = 0.05 + matched_score
+                        neg_val = 0.05
+                    else:
+                        pos_val = 0.05
+                        neg_val = 0.05 - matched_score
+                    response.append([
+                        {"label": "positive", "score": round(pos_val, 3)},
+                        {"label": "negative", "score": round(neg_val, 3)},
+                        {"label": "neutral", "score": 0.05}
+                    ])
+                else:
+                    response.append([
+                        {"label": "positive", "score": 0.90},
+                        {"label": "negative", "score": 0.05},
+                        {"label": "neutral", "score": 0.05}
+                    ])
+            if not response:
+                response = [[
+                    {"label": "positive", "score": 0.90},
+                    {"label": "negative", "score": 0.05},
+                    {"label": "neutral", "score": 0.05}
+                ]]
             self._send_json(response)
             return
 

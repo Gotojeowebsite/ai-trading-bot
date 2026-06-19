@@ -24,6 +24,9 @@ def test_comb_scanner_to_sentiment(run_cli, monkeypatch):
         return 0.80
     monkeypatch.setattr("sentiment.finbert_client.get_sentiment", mock_get_sentiment)
     
+    # Configure negative sentiment override for AAPL in mock server for the subprocess
+    requests.post(MOCK_CONTROL_URL, json={"sentiment_overrides": {"AAPL": -0.80}})
+    
     # Run trade loop
     result = run_cli(["--mode", "trade"])
     assert result.returncode == 0

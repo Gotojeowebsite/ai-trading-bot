@@ -1,0 +1,23 @@
+{
+  "macro_outlook": "Bullish macro backdrop. Tech sector leading.",
+  "vix": 14.5,
+  "sector_trends": {
+    "Technology": "bullish",
+    "Healthcare": "neutral",
+    "Energy": "bearish"
+  },
+  "catalysts": {
+    "AAPL": {
+      "event": "Product release today at 10 AM",
+      "sentiment": "positive"
+    },
+    "TSLA": {
+      "event": "Earnings release pre-market",
+      "sentiment": "negative"
+    }
+  },
+  "insider_sentiment": {
+    "AAPL": 0.85,
+    "TSLA": -0.4
+  }
+}

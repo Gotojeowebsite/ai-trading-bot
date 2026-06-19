@@ -1,0 +1,9 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.0, pluggy-1.6.0
+rootdir: /home/umanzor/ai-trading-bot
+plugins: anyio-4.14.0, mock-3.15.1
+collected 16 items / 14 deselected / 2 selected
+
+tests/e2e/test_r1_r5_e2e.py ..                                           [100%]
+
+======================= 2 passed, 14 deselected in 1.75s =======================

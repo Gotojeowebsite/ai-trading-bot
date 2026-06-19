@@ -36,7 +36,7 @@ from automation.scanner import run_scanner
 from engine.llm_brain import tier1_screen, tier2_decide
 from sentiment.finbert_client import get_sentiment
 from politician.copy_mode import get_politician_signals, get_all_recent_trades
-from execution.order_manager import AlpacaExecutor
+from execution.order_manager import AlpacaExecutor, IBExecutor
 from notifications.alerts import notify_trade, notify_circuit_breaker, notify_daily_summary
 
 logging.basicConfig(
@@ -133,12 +133,176 @@ def _fallback_data(ticker: str) -> dict:
             "ema": 0, "rvol": 1.0, "volume": 0, "bb_position": "middle", "ema_trend": "neutral"}
 
 
+def get_nth_weekday(year: int, month: int, weekday: int, n: int) -> datetime.date:
+    """Find the Nth occurrence of a weekday in a month (0=Monday, 6=Sunday)."""
+    import datetime
+    first_day = datetime.date(year, month, 1)
+    days_to_add = (weekday - first_day.weekday()) % 7
+    first_occurrence = first_day + datetime.timedelta(days=days_to_add)
+    return first_occurrence + datetime.timedelta(weeks=n-1)
+
+
+def get_last_weekday(year: int, month: int, weekday: int) -> datetime.date:
+    """Find the last occurrence of a weekday in a month (0=Monday, 6=Sunday)."""
+    import datetime
+    if month == 12:
+        next_month = datetime.date(year + 1, 1, 1)
+    else:
+        next_month = datetime.date(year, month + 1, 1)
+    days_to_sub = (next_month.weekday() - weekday) % 7
+    if days_to_sub == 0:
+        days_to_sub = 7
+    return next_month - datetime.timedelta(days=days_to_sub)
+
+
+def get_easter_date(year: int) -> datetime.date:
+    """Calculate Easter Sunday using the Anonymous Gregorian algorithm."""
+    import datetime
+    a = year % 19
+    b = year // 100
+    c = year % 100
+    d = b // 4
+    e = b % 4
+    f = (b + 8) // 25
+    g = (b - f + 1) // 3
+    h = (19 * a + b - d - g + 15) % 30
+    i = c // 4
+    k = c % 4
+    L = (32 + 2 * e + 2 * i - h - k) % 7
+    m = (a + 11 * h + 22 * L) // 451
+    month = (h + L - 7 * m + 114) // 31
+    day = ((h + L - 7 * m + 114) % 31) + 1
+    return datetime.date(year, month, day)
+
+
+def is_market_holiday(dt) -> bool:
+    """Check if the given date is a weekend or a US stock market holiday."""
+    import datetime
+    if isinstance(dt, datetime.datetime):
+        d = dt.date()
+    else:
+        d = dt
+
+    if d.weekday() >= 5:
+        return True
+
+    year = d.year
+    holidays = set()
+
+    # New Year's Day (Jan 1)
+    ny = datetime.date(year, 1, 1)
+    if ny.weekday() == 5:  # Saturday -> Friday Dec 31
+        holidays.add(datetime.date(year - 1, 12, 31))
+    elif ny.weekday() == 6:  # Sunday -> Monday Jan 2
+        holidays.add(datetime.date(year, 1, 2))
+    else:
+        holidays.add(ny)
+
+    # MLK Day (3rd Monday in Jan)
+    holidays.add(get_nth_weekday(year, 1, 0, 3))
+
+    # Presidents' Day (3rd Monday in Feb)
+    holidays.add(get_nth_weekday(year, 2, 0, 3))
+
+    # Good Friday (Easter - 2 days)
+    holidays.add(get_easter_date(year) - datetime.timedelta(days=2))
+
+    # Memorial Day (Last Monday in May)
+    holidays.add(get_last_weekday(year, 5, 0))
+
+    # Juneteenth (June 19)
+    jt = datetime.date(year, 6, 19)
+    if jt.weekday() == 5:
+        holidays.add(datetime.date(year, 6, 18))
+    elif jt.weekday() == 6:
+        holidays.add(datetime.date(year, 6, 20))
+    else:
+        holidays.add(jt)
+
+    # Independence Day (July 4)
+    id4 = datetime.date(year, 7, 4)
+    if id4.weekday() == 5:
+        holidays.add(datetime.date(year, 7, 3))
+    elif id4.weekday() == 6:
+        holidays.add(datetime.date(year, 7, 5))
+    else:
+        holidays.add(id4)
+
+    # Labor Day (1st Monday in Sep)
+    holidays.add(get_nth_weekday(year, 9, 0, 1))
+
+    # Thanksgiving Day (4th Thursday in Nov)
+    holidays.add(get_nth_weekday(year, 11, 3, 4))
+
+    # Christmas Day (Dec 25)
+    xm = datetime.date(year, 12, 25)
+    if xm.weekday() == 5:
+        holidays.add(datetime.date(year, 12, 24))
+    elif xm.weekday() == 6:
+        holidays.add(datetime.date(year, 12, 26))
+    else:
+        holidays.add(xm)
+
+    # Observed New Year's Day for next year if Dec 31 is a Friday
+    next_ny = datetime.date(year + 1, 1, 1)
+    if next_ny.weekday() == 5:
+        holidays.add(datetime.date(year, 12, 31))
+
+    return d in holidays
+
+
+def calculate_macro_context() -> float:
+    """Calculate macro context score between -1.0 and 1.0 based on morning research."""
+    try:
+        from engine.llm_brain import get_today_research
+        research = get_today_research()
+        if not research:
+            return 0.0
+        
+        # 1. VIX Score
+        vix = research.get("vix")
+        vix_score = 0.0
+        if vix is not None:
+            try:
+                vix = float(vix)
+                vix_score = (20.0 - vix) / 10.0
+                vix_score = max(-1.0, min(1.0, vix_score))
+            except (ValueError, TypeError):
+                pass
+        
+        # 2. Macro Outlook Score
+        outlook = str(research.get("macro_outlook", "")).lower()
+        outlook_score = 0.0
+        if "bullish" in outlook or "strong" in outlook or "positive" in outlook:
+            outlook_score += 0.8
+        elif "bearish" in outlook or "weak" in outlook or "negative" in outlook:
+            outlook_score -= 0.8
+            
+        # 3. Sector Trends Score
+        sector_trends = research.get("sector_trends", {})
+        sector_score = 0.0
+        if isinstance(sector_trends, dict) and sector_trends:
+            bullish_count = sum(1 for trend in sector_trends.values() if str(trend).lower() == "bullish")
+            bearish_count = sum(1 for trend in sector_trends.values() if str(trend).lower() == "bearish")
+            sector_score = (bullish_count - bearish_count) / len(sector_trends)
+            
+        scores = [vix_score, outlook_score, sector_score]
+        return float(sum(scores) / len(scores))
+    except Exception as e:
+        logger.error(f"Error calculating macro context: {e}")
+        return 0.0
+
+
 class TradingBot:
     def __init__(self):
         self.config = load_config()
         db_path = self.config.get("database", {}).get("path", "trading.db")
         self.db = init_db(db_path)
-        self.executor = AlpacaExecutor(self.config)
+        provider = self.config.get("broker", {}).get("provider", "alpaca")
+        if provider == "ib":
+            self.executor = IBExecutor(self.config)
+        else:
+            self.executor = AlpacaExecutor(self.config)
         self.watchlist = self.config.get("watchlist", [])
         self.running = True
         self.daily_trades = 0
@@ -181,8 +345,9 @@ class TradingBot:
         return now.replace(hour=h, minute=m, second=0, microsecond=0)
 
     def _is_trading_day(self) -> bool:
-        """Check if today is a weekday (basic check — no holiday calendar)."""
-        return self._now_est().weekday() < 5  # Mon=0, Fri=4
+        """Check if today is a weekday and not a US stock market holiday."""
+        now = self._now_est()
+        return not is_market_holiday(now.date())
 
     def check_circuit_breaker(self) -> bool:
         """Check if daily loss limit hit."""
@@ -238,6 +403,9 @@ class TradingBot:
         signals["politician_score"] = pol_data["composite_score"]
         signals["politician_details"] = json.dumps(pol_data.get("trades", [])[:3])
 
+        # Populate macro context
+        signals["macro_context"] = calculate_macro_context()
+
         # 4. Tier 1 screening
         if self.tier1_calls >= self.max_tier1:
             logger.warning("Tier 1 daily call limit reached")
@@ -248,9 +416,11 @@ class TradingBot:
         logger.info(f"[{ticker}] Tier 1 score: {t1_score:.1f}/10")
 
         # Save signals to DB
-        self.db.execute("""INSERT OR REPLACE INTO signals VALUES (?,?,?,?,?,?,?,?,?)""",
+        self.db.execute(
+            """INSERT OR REPLACE INTO signals (ticker, rsi, macd, vwap, rvol, sentiment, politician_score, composite, timestamp) VALUES (?,?,?,?,?,?,?,?,?)""",
             (ticker, signals["rsi"], signals["macd"], signals["vwap"], signals["rvol"],
-             signals["sentiment"], signals["politician_score"], t1_score, datetime.now().isoformat()))
+             signals["sentiment"], signals["politician_score"], t1_score, datetime.now().isoformat())
+        )
         self.db.commit()
 
         # 5. Check if worth a Tier 2 call

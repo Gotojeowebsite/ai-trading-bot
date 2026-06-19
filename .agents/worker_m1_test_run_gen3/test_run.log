@@ -1,0 +1,341 @@
+=== Test Run Started ===
+=== Running tests/e2e/test_e2e_flow.py ===
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.0, pluggy-1.6.0 -- /home/umanzor/ai-trading-bot/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/umanzor/ai-trading-bot
+plugins: anyio-4.14.0, mock-3.15.1
+collecting ... collected 1 item
+
+tests/e2e/test_e2e_flow.py::test_e2e_scanner_and_trading_flow PASSED     [100%]
+
+============================== 1 passed in 2.01s ===============================
+Exit code: 0
+=== Running tests/e2e/test_r1_r5_e2e.py ===
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.0, pluggy-1.6.0 -- /home/umanzor/ai-trading-bot/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/umanzor/ai-trading-bot
+plugins: anyio-4.14.0, mock-3.15.1
+collecting ... collected 16 items
+
+tests/e2e/test_r1_r5_e2e.py::test_r1_mock_openai_reasoning_model PASSED  [  6%]
+tests/e2e/test_r1_r5_e2e.py::test_r1_mock_gemini_reasoning_model PASSED  [ 12%]
+tests/e2e/test_r1_r5_e2e.py::test_r1_production_morning_research SKIPPED [ 18%]
+tests/e2e/test_r1_r5_e2e.py::test_r2_mock_ib_accounts_endpoint PASSED    [ 25%]
+tests/e2e/test_r1_r5_e2e.py::test_r2_mock_ib_portfolio_meta_endpoint PASSED [ 31%]
+tests/e2e/test_r1_r5_e2e.py::test_r2_mock_ib_orders_placement_and_retrieval PASSED [ 37%]
+tests/e2e/test_r1_r5_e2e.py::test_r2_production_ib_executor SKIPPED      [ 43%]
+tests/e2e/test_r1_r5_e2e.py::test_r3_dashboard_research_endpoint SKIPPED [ 50%]
+tests/e2e/test_r1_r5_e2e.py::test_r3_dashboard_analytics_endpoint SKIPPED [ 56%]
+tests/e2e/test_r1_r5_e2e.py::test_r3_dashboard_settings_endpoint SKIPPED [ 62%]
+tests/e2e/test_r1_r5_e2e.py::test_r3_dashboard_existing_portfolio_endpoint PASSED [ 68%]
+tests/e2e/test_r1_r5_e2e.py::test_r4_setup_wizard_cli SKIPPED (Setup...) [ 75%]
+tests/e2e/test_r1_r5_e2e.py::test_r4_setup_wizard_gui SKIPPED (Setup...) [ 81%]
+tests/e2e/test_r1_r5_e2e.py::test_r5_holiday_awareness SKIPPED (Holi...) [ 87%]
+tests/e2e/test_r1_r5_e2e.py::test_r5_production_sentiment_client PASSED  [ 93%]
+tests/e2e/test_r1_r5_e2e.py::test_r5_production_politician_signals PASSED [100%]
+
+========================= 8 passed, 8 skipped in 6.53s =========================
+Exit code: 0
+=== Running tests/e2e/test_tier1_feature.py ===
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.0, pluggy-1.6.0 -- /home/umanzor/ai-trading-bot/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/umanzor/ai-trading-bot
+plugins: anyio-4.14.0, mock-3.15.1
+collecting ... collected 30 items
+
+tests/e2e/test_tier1_feature.py::test_scan_happy_path PASSED             [  3%]
+tests/e2e/test_tier1_feature.py::test_scan_yfinance_fallback PASSED      [  6%]
+tests/e2e/test_tier1_feature.py::test_scan_indicators_non_empty PASSED   [ 10%]
+tests/e2e/test_tier1_feature.py::test_scan_schedule PASSED               [ 13%]
+tests/e2e/test_tier1_feature.py::test_scan_output_format PASSED          [ 16%]
+tests/e2e/test_tier1_feature.py::test_sentiment_happy_path PASSED        [ 20%]
+tests/e2e/test_tier1_feature.py::test_sentiment_score_range PASSED       [ 23%]
+tests/e2e/test_tier1_feature.py::test_sentiment_empty_news PASSED        [ 26%]
+tests/e2e/test_tier1_feature.py::test_sentiment_invalid_ticker PASSED    [ 30%]
+tests/e2e/test_tier1_feature.py::test_sentiment_cache PASSED             [ 33%]
+tests/e2e/test_tier1_feature.py::test_politician_happy_path PASSED       [ 36%]
+tests/e2e/test_tier1_feature.py::test_politician_scoring_weight PASSED   [ 40%]
+tests/e2e/test_tier1_feature.py::test_politician_blended_signal PASSED   [ 43%]
+tests/e2e/test_tier1_feature.py::test_politician_corrupt_data PASSED     [ 46%]
+tests/e2e/test_tier1_feature.py::test_politician_no_recent_trades PASSED [ 50%]
+tests/e2e/test_tier1_feature.py::test_llm_happy_path PASSED              [ 53%]
+tests/e2e/test_tier1_feature.py::test_llm_tier1_screening PASSED         [ 56%]
+tests/e2e/test_tier1_feature.py::test_llm_tier2_json_schema PASSED       [ 60%]
+tests/e2e/test_tier1_feature.py::test_llm_fallback_tier1_fail PASSED     [ 63%]
+tests/e2e/test_tier1_feature.py::test_llm_fallback_tier2_fail PASSED     [ 66%]
+tests/e2e/test_tier1_feature.py::test_exec_bracket_order PASSED          [ 70%]
+tests/e2e/test_tier1_feature.py::test_exec_circuit_breaker PASSED        [ 73%]
+tests/e2e/test_tier1_feature.py::test_exec_pre_close_liquidation PASSED  [ 76%]
+tests/e2e/test_tier1_feature.py::test_exec_watchdog_restart PASSED       [ 80%]
+tests/e2e/test_tier1_feature.py::test_exec_position_sizing PASSED        [ 83%]
+tests/e2e/test_tier1_feature.py::test_dash_rest_portfolio PASSED         [ 86%]
+tests/e2e/test_tier1_feature.py::test_dash_rest_trades PASSED            [ 90%]
+tests/e2e/test_tier1_feature.py::test_dash_websocket_updates PASSED      [ 93%]
+tests/e2e/test_tier1_feature.py::test_dash_glassmorphism_static PASSED   [ 96%]
+tests/e2e/test_tier1_feature.py::test_dash_settings_update SKIPPED (...) [100%]
+
+======================== 29 passed, 1 skipped in 30.09s ========================
+Exit code: 0
+=== Running tests/e2e/test_tier2_boundary.py ===
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.0, pluggy-1.6.0 -- /home/umanzor/ai-trading-bot/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/umanzor/ai-trading-bot
+plugins: anyio-4.14.0, mock-3.15.1
+collecting ... collected 30 items
+
+tests/e2e/test_tier2_boundary.py::test_scan_zero_volume PASSED           [  3%]
+tests/e2e/test_tier2_boundary.py::test_scan_extreme_prices PASSED        [  6%]
+tests/e2e/test_tier2_boundary.py::test_scan_incomplete_ohlcv PASSED      [ 10%]
+tests/e2e/test_tier2_boundary.py::test_scan_api_timeout PASSED           [ 13%]
+tests/e2e/test_tier2_boundary.py::test_scan_rvol_division_by_zero PASSED [ 16%]
+tests/e2e/test_tier2_boundary.py::test_sentiment_extremely_long_news PASSED [ 20%]
+tests/e2e/test_tier2_boundary.py::test_sentiment_api_down PASSED         [ 23%]
+tests/e2e/test_tier2_boundary.py::test_sentiment_special_chars PASSED    [ 26%]
+tests/e2e/test_tier2_boundary.py::test_sentiment_rate_limiting PASSED    [ 30%]
+tests/e2e/test_tier2_boundary.py::test_sentiment_contradictory_headlines PASSED [ 33%]
+tests/e2e/test_tier2_boundary.py::test_politician_disclosure_extreme_size PASSED [ 36%]
+tests/e2e/test_tier2_boundary.py::test_politician_future_disclosed_date FAILED [ 40%]
+tests/e2e/test_tier2_boundary.py::test_politician_duplicate_trades PASSED [ 43%]
+tests/e2e/test_tier2_boundary.py::test_politician_missing_fields PASSED  [ 46%]
+tests/e2e/test_tier2_boundary.py::test_politician_historic_trades FAILED [ 50%]
+tests/e2e/test_tier2_boundary.py::test_llm_malformed_json_response PASSED [ 53%]
+tests/e2e/test_tier2_boundary.py::test_llm_hallucinated_action PASSED    [ 56%]
+tests/e2e/test_tier2_boundary.py::test_llm_stop_loss_out_of_bounds PASSED [ 60%]
+tests/e2e/test_tier2_boundary.py::test_llm_empty_reasoning PASSED        [ 63%]
+tests/e2e/test_tier2_boundary.py::test_llm_context_window_overflow PASSED [ 66%]
+tests/e2e/test_tier2_boundary.py::test_exec_insufficient_buying_power PASSED [ 70%]
+tests/e2e/test_tier2_boundary.py::test_exec_order_fill_delay PASSED      [ 73%]
+tests/e2e/test_tier2_boundary.py::test_exec_circuit_breaker_exact_limit PASSED [ 76%]
+tests/e2e/test_tier2_boundary.py::test_exec_partial_fills PASSED         [ 80%]
+tests/e2e/test_tier2_boundary.py::test_exec_alpaca_disconnected_ws PASSED [ 83%]
+tests/e2e/test_tier2_boundary.py::test_dash_websocket_flood PASSED       [ 86%]
+tests/e2e/test_tier2_boundary.py::test_dash_unauthorized_access SKIPPED  [ 90%]
+tests/e2e/test_tier2_boundary.py::test_dash_empty_db_state FAILED        [ 93%]
+tests/e2e/test_tier2_boundary.py::test_dash_concurrent_connections PASSED [ 96%]
+tests/e2e/test_tier2_boundary.py::test_dash_cors_config PASSED           [100%]
+
+=================================== FAILURES ===================================
+____________________ test_politician_future_disclosed_date _____________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x76608f239b80>
+
+    def test_politician_future_disclosed_date(monkeypatch):
+        """42. Rejects disclosures dated in the future."""
+        class MockResponse:
+            status_code = 200
+            text = "DisclosureDate,FilerName,Ticker,TradeType,Amount,RecencyScore\n2050-01-01,Nancy Pelosi,AAPL,purchase,$100000,0.95"
+        monkeypatch.setattr("requests.get", lambda *args, **kwargs: MockResponse())
+        res = get_politician_signals("AAPL")
+>       assert res["signal_score"] == 0.0
+E       assert 0.95 == 0.0
+
+tests/e2e/test_tier2_boundary.py:146: AssertionError
+_______________________ test_politician_historic_trades ________________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x76608f063260>
+
+    def test_politician_historic_trades(monkeypatch):
+        """45. Zero weight assigned to filings older than lookback period (e.g. 180 days)."""
+        class MockResponse:
+            status_code = 200
+            text = "DisclosureDate,FilerName,Ticker,TradeType,Amount,RecencyScore\n2020-01-01,Nancy Pelosi,AAPL,purchase,$100000,0.95"
+        monkeypatch.setattr("requests.get", lambda *args, **kwargs: MockResponse())
+        res = get_politician_signals("AAPL")
+>       assert res["signal_score"] == 0.0
+E       assert 0.95 == 0.0
+
+tests/e2e/test_tier2_boundary.py:176: AssertionError
+___________________________ test_dash_empty_db_state ___________________________
+
+dashboard_server = 'http://localhost:8000'
+
+    def test_dash_empty_db_state(dashboard_server):
+        """58. Serves dashboard UI correctly even if database is uninitialized."""
+        r = requests.get(f"{dashboard_server}/api/trades")
+>       assert r.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = <Response [404]>.status_code
+
+tests/e2e/test_tier2_boundary.py:325: AssertionError
+=========================== short test summary info ============================
+FAILED tests/e2e/test_tier2_boundary.py::test_politician_future_disclosed_date
+FAILED tests/e2e/test_tier2_boundary.py::test_politician_historic_trades - as...
+FAILED tests/e2e/test_tier2_boundary.py::test_dash_empty_db_state - assert 40...
+=================== 3 failed, 26 passed, 1 skipped in 35.83s ===================
+Exit code: 1
+=== Running tests/e2e/test_tier3_combinatorial.py ===
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.0, pluggy-1.6.0 -- /home/umanzor/ai-trading-bot/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/umanzor/ai-trading-bot
+plugins: anyio-4.14.0, mock-3.15.1
+collecting ... collected 6 items
+
+tests/e2e/test_tier3_combinatorial.py::test_comb_scanner_to_sentiment FAILED [ 16%]
+tests/e2e/test_tier3_combinatorial.py::test_comb_circuit_breaker_stops_all PASSED [ 33%]
+tests/e2e/test_tier3_combinatorial.py::test_comb_watchdog_restores_execution_and_dashboard PASSED [ 50%]
+tests/e2e/test_tier3_combinatorial.py::test_comb_politician_and_technical_concurrence PASSED [ 66%]
+tests/e2e/test_tier3_combinatorial.py::test_comb_bracket_order_update_reflects_in_dashboard PASSED [ 83%]
+tests/e2e/test_tier3_combinatorial.py::test_comb_pre_close_liquidation_overrides_pending_orders PASSED [100%]
+
+=================================== FAILURES ===================================
+________________________ test_comb_scanner_to_sentiment ________________________
+
+run_cli = <function run_cli.<locals>._run at 0x7883da8cad40>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7883da6dd5b0>
+
+    def test_comb_scanner_to_sentiment(run_cli, monkeypatch):
+        """61. Tickers selected by the scanner are evaluated by the sentiment module,
+        filtering out those with negative scores before LLM input.
+        """
+        # Scan to populate AAPL and MSFT
+        run_cli(["--mode", "scan"])
+    
+        # Mock get_sentiment to return negative score for AAPL, positive for MSFT
+        def mock_get_sentiment(ticker):
+            if ticker == "AAPL":
+                return -0.80
+            return 0.80
+        monkeypatch.setattr("sentiment.finbert_client.get_sentiment", mock_get_sentiment)
+    
+        # Run trade loop
+        result = run_cli(["--mode", "trade"])
+        assert result.returncode == 0
+    
+        # Verify AAPL was skipped (no trade) and MSFT was traded
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("SELECT ticker FROM trades")
+        traded = {r[0] for r in cursor.fetchall()}
+        conn.close()
+    
+>       assert "AAPL" not in traded
+E       AssertionError: assert 'AAPL' not in {'AAPL', 'GOOGL', 'MSFT'}
+
+tests/e2e/test_tier3_combinatorial.py:38: AssertionError
+=========================== short test summary info ============================
+FAILED tests/e2e/test_tier3_combinatorial.py::test_comb_scanner_to_sentiment
+========================= 1 failed, 5 passed in 11.26s =========================
+Exit code: 1
+=== Running tests/e2e/test_tier4_scenarios.py ===
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.0, pluggy-1.6.0 -- /home/umanzor/ai-trading-bot/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/umanzor/ai-trading-bot
+plugins: anyio-4.14.0, mock-3.15.1
+collecting ... collected 5 items
+
+tests/e2e/test_tier4_scenarios.py::test_scenario_standard_trading_day PASSED [ 20%]
+tests/e2e/test_tier4_scenarios.py::test_scenario_circuit_breaker_protection PASSED [ 40%]
+tests/e2e/test_tier4_scenarios.py::test_scenario_extended_api_outage_recovery PASSED [ 60%]
+tests/e2e/test_tier4_scenarios.py::test_scenario_high_frequency_news_and_trades PASSED [ 80%]
+tests/e2e/test_tier4_scenarios.py::test_scenario_watchdog_active_monitoring PASSED [100%]
+
+============================== 5 passed in 4.77s ===============================
+Exit code: 0
+=== Running tests/unit/test_data_client.py ===
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.0, pluggy-1.6.0 -- /home/umanzor/ai-trading-bot/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/umanzor/ai-trading-bot
+plugins: anyio-4.14.0, mock-3.15.1
+collecting ... collected 6 items
+
+tests/unit/test_data_client.py::test_data_client_initialization PASSED   [ 16%]
+tests/unit/test_data_client.py::test_on_bar_callback PASSED              [ 33%]
+tests/unit/test_data_client.py::test_alpaca_stream_run PASSED            [ 50%]
+tests/unit/test_data_client.py::test_yfinance_polling PASSED             [ 66%]
+tests/unit/test_data_client.py::test_data_client_callback_optimization PASSED [ 83%]
+tests/unit/test_data_client.py::test_data_client_thread_safety PASSED    [100%]
+
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/websockets/legacy/__init__.py:6
+  /home/umanzor/ai-trading-bot/.venv/lib/python3.12/site-packages/websockets/legacy/__init__.py:6: DeprecationWarning: websockets.legacy is deprecated; see https://websockets.readthedocs.io/en/stable/howto/upgrade.html for upgrade instructions
+    warnings.warn(  # deprecated in 14.0 - 2024-11-09
+
+tests/unit/test_data_client.py::test_on_bar_callback
+tests/unit/test_data_client.py::test_yfinance_polling
+tests/unit/test_data_client.py::test_data_client_callback_optimization
+tests/unit/test_data_client.py::test_data_client_thread_safety
+  /home/umanzor/ai-trading-bot/automation/data_client.py:101: FutureWarning: The behavior of DataFrame concatenation with empty or all-NA entries is deprecated. In a future version, this will no longer exclude empty or all-NA columns when determining the result dtypes. To retain the old behavior, exclude the relevant entries before the concat operation.
+    df = pd.concat([df, new_df], ignore_index=True)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 6 passed, 5 warnings in 4.31s =========================
+Exit code: 0
+=== Running tests/unit/test_indicators.py ===
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.0, pluggy-1.6.0 -- /home/umanzor/ai-trading-bot/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/umanzor/ai-trading-bot
+plugins: anyio-4.14.0, mock-3.15.1
+collecting ... collected 7 items
+
+tests/unit/test_indicators.py::test_vwap_daily_reset PASSED              [ 14%]
+tests/unit/test_indicators.py::test_indicators_mathematics PASSED        [ 28%]
+tests/unit/test_indicators.py::test_ema_crossover PASSED                 [ 42%]
+tests/unit/test_indicators.py::test_multiple_tickers PASSED              [ 57%]
+tests/unit/test_indicators.py::test_multiindex_support PASSED            [ 71%]
+tests/unit/test_indicators.py::test_multiindex_vwap_daily_reset_multiple_days PASSED [ 85%]
+tests/unit/test_indicators.py::test_rsi_nan_robustness PASSED            [100%]
+
+============================== 7 passed in 0.56s ===============================
+Exit code: 0
+=== Running tests/unit/test_scanner.py ===
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.0, pluggy-1.6.0 -- /home/umanzor/ai-trading-bot/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/umanzor/ai-trading-bot
+plugins: anyio-4.14.0, mock-3.15.1
+collecting ... collected 6 items
+
+tests/unit/test_scanner.py::test_db_initialization PASSED                [ 16%]
+tests/unit/test_scanner.py::test_scan_ticker_calculation PASSED          [ 33%]
+tests/unit/test_scanner.py::test_scanner_save_to_db PASSED               [ 50%]
+tests/unit/test_scanner.py::test_scanner_time_restrictions PASSED        [ 66%]
+tests/unit/test_scanner.py::test_scanner_symbol_validation PASSED        [ 83%]
+tests/unit/test_scanner.py::test_scanner_nan_handling PASSED             [100%]
+
+============================== 6 passed in 1.40s ===============================
+Exit code: 0
+=== Running tests/unit/test_stress.py ===
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.0, pluggy-1.6.0 -- /home/umanzor/ai-trading-bot/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/umanzor/ai-trading-bot
+plugins: anyio-4.14.0, mock-3.15.1
+collecting ... collected 5 items
+
+tests/unit/test_stress.py::test_indicators_extreme_large_input PASSED    [ 20%]
+tests/unit/test_stress.py::test_indicators_extreme_mathematics PASSED    [ 40%]
+tests/unit/test_stress.py::test_data_client_concurrent_high_frequency PASSED [ 60%]
+tests/unit/test_stress.py::test_scanner_dst_transitions PASSED           [ 80%]
+tests/unit/test_stress.py::test_scanner_extreme_filters PASSED           [100%]
+
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/websockets/legacy/__init__.py:6
+  /home/umanzor/ai-trading-bot/.venv/lib/python3.12/site-packages/websockets/legacy/__init__.py:6: DeprecationWarning: websockets.legacy is deprecated; see https://websockets.readthedocs.io/en/stable/howto/upgrade.html for upgrade instructions
+    warnings.warn(  # deprecated in 14.0 - 2024-11-09
+
+tests/unit/test_stress.py::test_data_client_concurrent_high_frequency
+tests/unit/test_stress.py::test_data_client_concurrent_high_frequency
+tests/unit/test_stress.py::test_data_client_concurrent_high_frequency
+  /home/umanzor/ai-trading-bot/automation/data_client.py:101: FutureWarning: The behavior of DataFrame concatenation with empty or all-NA entries is deprecated. In a future version, this will no longer exclude empty or all-NA columns when determining the result dtypes. To retain the old behavior, exclude the relevant entries before the concat operation.
+    df = pd.concat([df, new_df], ignore_index=True)
+
+tests/unit/test_stress.py::test_scanner_dst_transitions
+  /home/umanzor/ai-trading-bot/tests/unit/test_stress.py:165: FutureWarning: In a future version of pandas, parsing datetimes with mixed time zones will raise an error unless `utc=True`. Please specify `utc=True` to opt in to the new behaviour and silence this warning. To create a `Series` with mixed offsets and `object` dtype, please use `apply` and `datetime.datetime.strptime`
+    }, index=pd.to_datetime(timestamps_spring))
+
+tests/unit/test_stress.py::test_scanner_dst_transitions
+  /home/umanzor/ai-trading-bot/tests/unit/test_stress.py:195: FutureWarning: In a future version of pandas, parsing datetimes with mixed time zones will raise an error unless `utc=True`. Please specify `utc=True` to opt in to the new behaviour and silence this warning. To create a `Series` with mixed offsets and `object` dtype, please use `apply` and `datetime.datetime.strptime`
+    }, index=pd.to_datetime(timestamps_fall))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 5 passed, 6 warnings in 4.00s =========================
+Exit code: 0
+=== Test Run Finished ===

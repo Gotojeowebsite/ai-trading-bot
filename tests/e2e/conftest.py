@@ -155,8 +155,20 @@ def clean_database():
         state.positions.clear()
         state.status_overrides.clear()
         state.response_delays.clear()
+        state.sentiment_overrides.clear()
         state.account_cash = 100000.0
         state.account_equity = 100000.0
+
+    try:
+        from sentiment.finbert_client import _cache as sent_cache
+        sent_cache.clear()
+    except Exception:
+        pass
+    try:
+        from politician.copy_mode import _cache as pol_cache
+        pol_cache.clear()
+    except Exception:
+        pass
         
     yield
     

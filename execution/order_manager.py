@@ -7,6 +7,7 @@ import logging
 import requests
 from typing import Optional, Dict, List
 from datetime import datetime
+from execution.ib_executor import IBExecutor
 
 logger = logging.getLogger("executor")
 
@@ -14,7 +15,9 @@ logger = logging.getLogger("executor")
 class AlpacaExecutor:
     def __init__(self, config: dict):
         self.mode = config.get("broker", {}).get("mode", "paper")
-        if self.mode == "live":
+        if os.environ.get("ALPACA_API_BASE_URL"):
+            self.base_url = os.environ.get("ALPACA_API_BASE_URL")
+        elif self.mode == "live":
             self.base_url = config.get("broker", {}).get("live_url", "https://api.alpaca.markets")
         else:
             self.base_url = config.get("broker", {}).get("paper_url", "https://paper-api.alpaca.markets")
@@ -153,26 +156,42 @@ class AlpacaExecutor:
 
 # ── Legacy API shims (backward compatibility for tests) ──
 
-_default_executor = None
+_default_executors = {}
 
-def _get_executor():
-    """Get or create a default executor for legacy function calls."""
-    global _default_executor
-    if _default_executor is None:
-        _default_executor = AlpacaExecutor({
-            "broker": {
-                "mode": "paper",
-                "paper_url": os.environ.get("ALPACA_API_BASE_URL", "https://paper-api.alpaca.markets"),
-            }
-        })
-    return _default_executor
+def _get_executor(broker: str = "alpaca"):
+    """Get or create a default executor for the given broker."""
+    global _default_executors
+    if broker not in _default_executors:
+        import yaml
+        from pathlib import Path
+        config_path = Path(__file__).parent.parent / "config" / "config.yaml"
+        config = {}
+        if config_path.exists():
+            try:
+                with open(config_path) as f:
+                    config = yaml.safe_load(f) or {}
+            except Exception:
+                pass
+        if "broker" not in config:
+            config["broker"] = {}
+        config["broker"]["provider"] = broker
+        if os.environ.get("ALPACA_API_BASE_URL"):
+            config["broker"]["paper_url"] = os.environ.get("ALPACA_API_BASE_URL")
+            config["broker"]["live_url"] = os.environ.get("ALPACA_API_BASE_URL")
+        
+        if broker == "ib":
+            _default_executors[broker] = IBExecutor(config)
+        else:
+            _default_executors[broker] = AlpacaExecutor(config)
+            
+    return _default_executors[broker]
 
 
 def execute_bracket_order(ticker: str, side: str, qty: int,
                           take_profit: float, stop_loss: float,
-                          entry_price: float = None) -> str:
-    """Legacy function: place a bracket order via the default executor."""
-    executor = _get_executor()
+                          entry_price: float = None, broker: str = "alpaca") -> str:
+    """Legacy function: place a bracket order via the correct executor."""
+    executor = _get_executor(broker)
     result = executor.place_bracket_order(
         ticker=ticker, qty=qty, side=side,
         entry_price=entry_price, stop_loss=stop_loss, take_profit=take_profit
@@ -180,9 +199,9 @@ def execute_bracket_order(ticker: str, side: str, qty: int,
     return result if result else "failed-order"
 
 
-def close_all_positions():
-    """Legacy function: close all positions via the default executor."""
-    executor = _get_executor()
+def close_all_positions(broker: str = "alpaca"):
+    """Legacy function: close all positions via the correct executor."""
+    executor = _get_executor(broker)
     executor.close_all_positions()
 
 

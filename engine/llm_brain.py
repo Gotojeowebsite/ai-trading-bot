@@ -7,7 +7,9 @@ Tiered LLM Decision Engine
 import os
 import json
 import logging
+import time
 from typing import Optional
+from engine.research_engine import run_morning_research, get_today_research
 
 logger = logging.getLogger("llm_brain")
 
@@ -68,8 +70,22 @@ def _call_anthropic(prompt: str, system_prompt: str = "", model: str = "claude-3
         return None
 
 
+_last_call_times = {}
+
+def _apply_rate_limit(provider: str):
+    """Ensure at least a 0.2-second delay between calls to the same provider."""
+    global _last_call_times
+    now = time.time()
+    last_call = _last_call_times.get(provider, 0.0)
+    elapsed = now - last_call
+    if elapsed < 0.2:
+        time.sleep(0.2 - elapsed)
+    _last_call_times[provider] = time.time()
+
+
 def _call_llm(provider: str, prompt: str, system_prompt: str = "", model: str = "", max_tokens: int = 800) -> Optional[str]:
     """Route to the correct LLM provider."""
+    _apply_rate_limit(provider)
     if provider == "gemini":
         return _call_gemini(prompt, model=model or "gemini-2.0-flash", max_tokens=max_tokens)
     elif provider == "openai":
